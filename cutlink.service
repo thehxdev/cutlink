@@ -1,0 +1,13 @@
+[Unit]
+Description=Cut you links
+After=network.target nss-lookup.target
+
+[Service]
+Type=simple
+User=root
+ExecStart=/usr/local/bin/cutlink -tls -crt '...' -key '...' -addr '...' -env '...'
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target
+
