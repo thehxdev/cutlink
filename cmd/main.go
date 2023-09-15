@@ -3,6 +3,7 @@ package main
 import (
     "os"
     "log"
+    "fmt"
     "flag"
     "net/http"
     "cutlink/models"
@@ -28,6 +29,7 @@ func main() {
     key     := flag.String("key", "", "Path to .key file for TLS")
     addr    := flag.String("addr", ":5000", "Listening Address")
     envFile := flag.String("env", "admin.env", "Path to .env file for ADMIN_TOKEN")
+    dbFile  := flag.String("db", "./database.db", "Path to database file")
     flag.Parse()
 
     errLog  := log.New(os.Stderr, "[ERROR]\t", log.Ldate|log.Ltime|log.Lshortfile)
@@ -40,7 +42,7 @@ func main() {
         infoLog.Println("Please make a .env file and set ADMIN_TOKEN in that")
     }
 
-    db, err := sqlx.Open("sqlite3", "./database.db?parseTime=true")
+    db, err := sqlx.Open("sqlite3", fmt.Sprintf("%s?parseTime=true", *dbFile))
     if err != nil {
         errLog.Fatal(err)
     }
