@@ -45,6 +45,13 @@ func (a *app) Redirector(w http.ResponseWriter, r *http.Request, ps httprouter.P
 
 
 func (a *app) ViewUrl(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
+    token := r.Header.Get("Token")
+    if token != a.AdminToken || token == "" {
+        a.ErrorLog.Println("Not authorized request:", token)
+        http.Error(w, "Not Authorized", http.StatusInternalServerError)
+        return
+    }
+
     hash := r.URL.Query().Get("hash")
     if hash == "" {
         http.NotFound(w, r)
@@ -58,9 +65,14 @@ func (a *app) ViewUrl(w http.ResponseWriter, r *http.Request, _ httprouter.Param
         return
     }
 
-    w.Header().Set("Content-Type", "application/json")
     jsonData, err := json.Marshal(shortUrl)
+    if err != nil {
+        a.ErrorLog.Println(err.Error())
+        http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+        return
+    }
 
+    w.Header().Set("Content-Type", "application/json")
     w.Write(jsonData)
 }
 
