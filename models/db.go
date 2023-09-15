@@ -10,11 +10,11 @@ import (
 
 
 type Url struct {
-    ID          int
-    Target      string
-    Hash        string
-    Clicked     int
-    Created     *time.Time
+    ID          int         `json:"id"`
+    Target      string      `json:"target"`
+    Hash        string      `json:"hash"`
+    Clicked     int         `json:"clicked"`
+    Created     *time.Time  `json:"created"`
 }
 
 
