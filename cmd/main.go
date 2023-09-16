@@ -65,6 +65,7 @@ func main() {
     router.GET("/r/:hash", app.Redirector)
     router.GET("/view", app.ViewUrl)
     router.GET("/all", app.ViewAll)
+    router.GET("/search", app.SearchUrl)
     router.POST("/add", app.AddUrl)
     router.DELETE("/delete/:hash", app.Delete)
 

@@ -154,3 +154,36 @@ func (a *app) Delete(w http.ResponseWriter, r *http.Request, ps httprouter.Param
 
     w.Write([]byte("Deleted!"))
 }
+
+
+func (a *app) SearchUrl(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
+    token := r.Header.Get("Token")
+    if token != a.AdminToken || token == "" {
+        a.ErrorLog.Println("Not authorized request:", token)
+        http.Error(w, "Not Authorized", http.StatusInternalServerError)
+        return
+    }
+
+    target := r.URL.Query().Get("target")
+    if target == "" {
+        http.NotFound(w, r)
+        return
+    }
+
+    targetInfo, err := a.Urls.GetByTarget(target)
+    if err != nil {
+        a.ErrorLog.Println(err)
+        http.NotFound(w, r)
+        return
+    }
+
+    jsonData, err := json.Marshal(targetInfo)
+    if err != nil {
+        a.ErrorLog.Println(err.Error())
+        http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+        return
+    }
+
+    w.Header().Set("Content-Type", "application/json")
+    w.Write(jsonData)
+}
