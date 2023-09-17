@@ -38,8 +38,9 @@ func main() {
 
     err := godotenv.Load(*envFile)
     if err != nil {
-        errLog.Fatal("Cannot open", *envFile)
+        errLog.Println("Cannot open", *envFile)
         infoLog.Println("Please make a .env file and set ADMIN_TOKEN in that")
+        return
     }
 
     db, err := sqlx.Open("sqlite3", fmt.Sprintf("%s?parseTime=true", *dbFile))
