@@ -1,12 +1,9 @@
 package models
 
 import (
-    "fmt"
-    "time"
-    "math/rand"
-    "crypto/sha256"
+	"time"
 
-    "github.com/jmoiron/sqlx"
+	"github.com/jmoiron/sqlx"
 )
 
 
@@ -24,44 +21,11 @@ type Urls struct {
 }
 
 
-func genRandNum(low, top int) int {
-    return (rand.Intn(top - low) + low)
-}
-
-
-func genHash(input string, length int) string {
-    sha := sha256.New()
-    sha.Write([]byte(input))
-    hashed := fmt.Sprintf("%x", sha.Sum(nil))
-
-    var result []rune
-    for i := 0; i < length; i++ {
-        j := genRandNum(0, 63)
-        result = append(result, rune(hashed[j]))
-    }
-
-    return string(result)
-}
-
-
 func (u *Urls) Get(hash string) (*Url, error) {
     stmt := `SELECT id, target, hash, clicked, created FROM urls WHERE hash = ?`
     url := &Url{}
 
     err := u.DB.QueryRowx(stmt, hash).Scan(&url.ID, &url.Target, &url.Hash, &url.Clicked, &url.Created)
-    if err != nil {
-        return nil, err
-    }
-
-    return url, nil
-}
-
-
-func (u *Urls) GetByTarget(target string) (*Url, error) {
-    stmt := `SELECT id, target, hash, clicked, created FROM urls WHERE target = ?`
-    url := &Url{}
-
-    err := u.DB.QueryRowx(stmt, target).Scan(&url.ID, &url.Target, &url.Hash, &url.Clicked, &url.Created)
     if err != nil {
         return nil, err
     }
@@ -97,11 +61,8 @@ func (u *Urls) GetAll() ([]*Url, error) {
 func (u *Urls) Create(target string) (int, string, error) {
     stmt := `INSERT INTO urls (target, hash) VALUES (?, ?)`
 
-    // sha := sha256.New()
-    // sha.Write([]byte(target))
-    // hashed := fmt.Sprintf("%x", sha.Sum(nil))
-
-    hashLen := genRandNum(6, 11)
+    hashLen := genRandNum(5, 7)
+    // hashLen := 5
     tHash := genHash(target, hashLen)
 
     res, err := u.DB.Exec(stmt, target, tHash)
@@ -138,4 +99,19 @@ func (u *Urls) Delete(hash string) error {
         return err
     }
     return nil
+}
+
+
+func (u *Urls) TableIsEmpty() (int, error) {
+    var isEmpty int
+
+    stmt := `SELECT CASE WHEN EXISTS(SELECT 1 FROM urls) THEN 0 ELSE 1 END AS IsEmpty`
+    res := u.DB.QueryRowx(stmt)
+
+    err := res.Scan(&isEmpty)
+    if err != nil {
+        return -1, err
+    }
+
+    return isEmpty, nil
 }

@@ -1,0 +1,66 @@
+body {
+    font-family: 'Ubuntu', cursive;
+    text-align: center;
+}
+
+
+a {
+    text-decoration: none;
+}
+
+
+tr.htmx-swapping td {
+  opacity: 0;
+  transition: opacity 0.5s ease-out;
+}
+
+
+footer {
+    text-align: center;
+    font-size: 15px;
+    font-family: 'Ubuntu', cursive;
+}
+
+
+.btn-danger {
+    /* color: red; */
+    text-align: center;
+    border: none;
+    /* font-size: 20px; */
+    /* background-color: white; */
+    /* display: inline-block; */
+    text-decoration: none;
+    cursor: pointer;
+}
+
+
+.logo {
+    font-family: 'Pacifico', cursive;
+    font-size: 40px;
+    display: inline-block;
+    cursor: pointer;
+}
+
+
+.nav-pills .nav-link.active, .nav-pills .show > .nav-link {
+  color: var(--bs-nav-pills-link-active-color);
+  background-color: var(--bs-nav-pills-link-active-bg);
+}
+
+
+.nav-pills .nav-link {
+  --bs-nav-pills-border-radius: var(--bs-border-radius);
+  --bs-nav-pills-link-active-color: #fff;
+  --bs-nav-pills-link-active-bg: #0d6efd;
+}
+
+
+.nav {
+  --bs-nav-link-padding-x: 1rem;
+  --bs-nav-link-padding-y: 0.5rem;
+  --bs-nav-link-font-weight: ;
+  --bs-nav-link-color: var(--bs-link-color);
+  --bs-nav-link-hover-color: var(--bs-link-hover-color);
+  --bs-nav-link-disabled-color: var(--bs-secondary-color);
+  list-style: none;
+}

@@ -62,13 +62,14 @@ func main() {
 
     router := httprouter.New()
 
+    router.ServeFiles("/static/*filepath", http.Dir("./ui/static"))
     router.GET("/", app.Root)
     router.GET("/r/:hash", app.Redirector)
-    router.GET("/view", app.ViewUrl)
-    router.GET("/all", app.ViewAll)
-    router.GET("/search", app.SearchUrl)
-    router.POST("/add", app.AddUrl)
-    router.DELETE("/delete/:hash", app.Delete)
+    router.GET("/api/view", app.ViewUrl)
+    router.GET("/api/all", app.ViewAll)
+    // router.GET("/api/search", app.SearchUrl)
+    router.POST("/api/add", app.AddUrl)
+    router.DELETE("/api/delete/:hash", app.Delete)
 
     app.InfoLog.Println("Listening on", *addr)
     if *tls {

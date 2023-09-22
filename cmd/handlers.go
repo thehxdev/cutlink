@@ -4,14 +4,45 @@ import (
     "fmt"
     "strings"
     "net/http"
-    "encoding/json"
+    "html/template"
 
     "github.com/julienschmidt/httprouter"
 )
 
 
 func (a *app) Root(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
-    fmt.Fprintf(w, "Welcome to CutLink!\n")
+    urls, err := a.Urls.GetAll()
+    if err != nil {
+        a.ErrorLog.Println(err.Error())
+        http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+        return
+    }
+
+    files := []string{
+        "./ui/html/base.tmpl.html",
+        "./ui/html/partials/nav.tmpl.html",
+        "./ui/html/partials/footer.tmpl.html",
+        "./ui/html/partials/urltable.tmpl.html",
+        "./ui/html/partials/urlrow.tmpl.html",
+        "./ui/html/pages/home.tmpl.html",
+    }
+
+    ts, err := template.ParseFiles(files...)
+    if err != nil {
+        a.ErrorLog.Println(err.Error())
+        http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+        return
+    }
+
+    data := &templateData{
+        Urls: urls,
+    }
+
+    err = ts.ExecuteTemplate(w, "base", data)
+    if err != nil {
+        a.ErrorLog.Println(err.Error())
+        http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+    }
 }
 
 
@@ -45,13 +76,6 @@ func (a *app) Redirector(w http.ResponseWriter, r *http.Request, ps httprouter.P
 
 
 func (a *app) ViewUrl(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
-    token := r.Header.Get("Token")
-    if token != a.AdminToken || token == "" {
-        a.ErrorLog.Println("Not authorized request:", token)
-        http.Error(w, "Not Authorized", http.StatusInternalServerError)
-        return
-    }
-
     hash := r.URL.Query().Get("hash")
     if hash == "" {
         http.NotFound(w, r)
@@ -65,26 +89,13 @@ func (a *app) ViewUrl(w http.ResponseWriter, r *http.Request, _ httprouter.Param
         return
     }
 
-    jsonData, err := json.Marshal(shortUrl)
-    if err != nil {
-        a.ErrorLog.Println(err.Error())
-        http.Error(w, "Internal Server Error", http.StatusInternalServerError)
-        return
-    }
-
-    w.Header().Set("Content-Type", "application/json")
-    w.Write(jsonData)
+    w.Header().Set("HX-Trigger", "newUrl")
+    ts, _ := template.ParseFiles("./ui/html/partials/urlrow.tmpl.html")
+    _ = ts.ExecuteTemplate(w, "urlrow", shortUrl)
 }
 
 
 func (a *app) ViewAll(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
-    token := r.Header.Get("Token")
-    if token != a.AdminToken || token == "" {
-        a.ErrorLog.Println("Not authorized request:", token)
-        http.Error(w, "Not Authorized", http.StatusInternalServerError)
-        return
-    }
-
     urls, err := a.Urls.GetAll()
     if (err != nil) {
         a.ErrorLog.Println(err.Error())
@@ -92,38 +103,28 @@ func (a *app) ViewAll(w http.ResponseWriter, r *http.Request, _ httprouter.Param
         return
     }
 
-    jsonData, err := json.Marshal(urls)
+    files := []string{
+        "./ui/html/partials/urltable.tmpl.html",
+        "./ui/html/partials/urlrow.tmpl.html",
+    }
+
+    data := &templateData{
+        Urls: urls,
+    }
+
+    ts, _ := template.ParseFiles(files...)
+    _ = ts.ExecuteTemplate(w, "urltable", data)
+}
+
+
+func (a *app) AddUrl(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
+    err := r.ParseForm()
     if err != nil {
         a.ErrorLog.Println(err.Error())
         http.Error(w, "Internal Server Error", http.StatusInternalServerError)
         return
     }
-
-    w.Header().Set("Content-Type", "application/json")
-    w.Write(jsonData)
-}
-
-
-func (a *app) AddUrl(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
-    token := r.Header.Get("Token")
-    if token != a.AdminToken || token == "" {
-        a.ErrorLog.Println("Not authorized request:", token)
-        http.Error(w, "Not Authorized", http.StatusInternalServerError)
-        return
-    }
-
-    // if r.Method != http.MethodPost {
-    //     w.Header().Set("Allow", "POST")
-    //     http.Error(w, "Method Not Allowed", http.StatusMethodNotAllowed)
-    //     return
-    // }
-
-    target := r.URL.Query().Get("target")
-    // customName := r.URL.Query().Get("name")
-    if target == "" {
-        http.Error(w, "Empty query", http.StatusInternalServerError)
-        return
-    }
+    target := r.Form["target"][0]
 
     _, hash, err := a.Urls.Create(target)
     if (err != nil) {
@@ -133,57 +134,18 @@ func (a *app) AddUrl(w http.ResponseWriter, r *http.Request, _ httprouter.Params
     }
 
     a.InfoLog.Println("New URL added:", target)
-    http.Redirect(w, r, fmt.Sprintf("/view?hash=%s", hash), http.StatusSeeOther)
+    http.Redirect(w, r, fmt.Sprintf("/api/view?hash=%s", hash), http.StatusSeeOther)
 }
 
 
 func (a *app) Delete(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
-    token := r.Header.Get("Token")
-    if token != a.AdminToken || token == "" {
-        a.ErrorLog.Println("Not authorized request:", token)
-        http.Error(w, "Not Authorized", http.StatusInternalServerError)
-        return
-    }
-
-    err := a.Urls.Delete(ps.ByName("hash"))
+    hash := ps.ByName("hash")
+    err := a.Urls.Delete(hash)
     if err != nil {
         a.ErrorLog.Println(err.Error())
         http.Error(w, "Internal Server Error", http.StatusInternalServerError)
         return
     }
 
-    w.Write([]byte("Deleted!"))
-}
-
-
-func (a *app) SearchUrl(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
-    token := r.Header.Get("Token")
-    if token != a.AdminToken || token == "" {
-        a.ErrorLog.Println("Not authorized request:", token)
-        http.Error(w, "Not Authorized", http.StatusInternalServerError)
-        return
-    }
-
-    target := r.URL.Query().Get("target")
-    if target == "" {
-        http.NotFound(w, r)
-        return
-    }
-
-    targetInfo, err := a.Urls.GetByTarget(target)
-    if err != nil {
-        a.ErrorLog.Println(err)
-        http.NotFound(w, r)
-        return
-    }
-
-    jsonData, err := json.Marshal(targetInfo)
-    if err != nil {
-        a.ErrorLog.Println(err.Error())
-        http.Error(w, "Internal Server Error", http.StatusInternalServerError)
-        return
-    }
-
-    w.Header().Set("Content-Type", "application/json")
-    w.Write(jsonData)
+    a.InfoLog.Printf("url with hash %s has been deleted", hash)
 }

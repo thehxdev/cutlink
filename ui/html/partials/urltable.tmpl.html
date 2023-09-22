@@ -1,0 +1,24 @@
+{{define "urltable"}}
+<div id="urls-table" class="table-responsive">
+    <table class="table table-striped align-middle table-responsive">
+        <thead>
+            <tr>
+                <th scope="col">ID</th>
+                <th scope="col">Target</th>
+                <th scope="col">Hash</th>
+                <th scope="col">Clicked</th>
+                <th scope="col">Created</th>
+                <th scope="col">Refrence</th>
+                <th scope="col">Actions</th>
+            </tr>
+        </thead>
+
+        <!-- <tbody hx-confirm="Are you sure?" hx-target="closest tr" hx-swap="outerHTML swap:0.5s"> -->
+        <tbody id="urls-table-body" class="table-group-divider" hx-target="closest tr" hx-swap="outerHTML swap:0.5s">
+        {{range .Urls}}
+            {{template "urlrow" .}}
+        {{end}}
+        </tbody>
+    </table>
+</div>
+{{end}}
