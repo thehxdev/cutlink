@@ -32,7 +32,7 @@ func (cl *cutlink) setupMiddlewares() {
         Next: func (c *fiber.Ctx) bool {
             return (!strings.HasPrefix(c.Path(), "/auth"))
         },
-        Max: 6,
+        Max: 20,
         Expiration: 60 * time.Second,
         LimitReached: func (c *fiber.Ctx) error {
             return c.SendString("Rate Limit Reached. Wait for 60 seconds.")
