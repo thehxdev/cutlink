@@ -1,0 +1,26 @@
+<nav>
+    <div class="container">
+        <header class="d-flex flex-wrap align-items-center justify-content-center justify-content-md-between py-3 mb-4 border-bottom">
+            <div>
+                <a class="d-inline-flex link-body-emphasis text-decoration-none logo" href="/">CutLink!</a>
+            </div>
+            <ul class="nav col-12 col-md-auto mb-2 justify-content-center mb-md-0 nav-pills">
+                {{if .authenticated}}
+                <li class="nav-item">
+                    <a href="/auth/logout" class="nav-link active" aria-current="page">Logout</a>
+                </li>
+                {{else}}
+                <li class="nav-item">
+                    <a href="/auth/signup" class="nav-link active" aria-current="page">Signup</a>
+                </li>
+                <li class="nav-item">
+                    <a href="/auth/login" class="nav-link" aria-current="page">Login</a>
+                </li>
+                {{end}}
+                <li class="nav-item">
+                    <a href="https://github.com/thehxdev/cutlink" target="_blank" rel="noopener noreferrer" class="nav-link" aria-current="page">Github</a>
+                </li>
+            </ul>
+        </header>
+    </div>
+</nav>

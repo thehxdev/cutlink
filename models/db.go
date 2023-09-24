@@ -3,29 +3,38 @@ package models
 import (
 	"time"
 
-	"github.com/jmoiron/sqlx"
+    "github.com/jmoiron/sqlx"
+    "golang.org/x/crypto/bcrypt"
 )
 
 
 type Url struct {
-    ID          int         `json:"id"`
-    Target      string      `json:"target"`
-    Hash        string      `json:"hash"`
-    Clicked     int         `json:"clicked"`
-    Created     *time.Time  `json:"created"`
+    ID          int
+    Target      string
+    Hash        string
+    Clicked     int
+    Created     *time.Time
+    UserID      int
 }
 
 
-type Urls struct {
+type User struct {
+    ID             int
+    UUID_hash    string
+    PassHash    string
+}
+
+
+type Conn struct {
     DB *sqlx.DB
 }
 
 
-func (u *Urls) Get(hash string) (*Url, error) {
+func (c *Conn) GetUrl(hash string) (*Url, error) {
     stmt := `SELECT id, target, hash, clicked, created FROM urls WHERE hash = ?`
     url := &Url{}
 
-    err := u.DB.QueryRowx(stmt, hash).Scan(&url.ID, &url.Target, &url.Hash, &url.Clicked, &url.Created)
+    err := c.DB.QueryRowx(stmt, hash).Scan(&url.ID, &url.Target, &url.Hash, &url.Clicked, &url.Created)
     if err != nil {
         return nil, err
     }
@@ -34,11 +43,11 @@ func (u *Urls) Get(hash string) (*Url, error) {
 }
 
 
-func (u *Urls) GetAll() ([]*Url, error) {
-    stmt := `SELECT id, target, hash, clicked, created FROM urls ORDER BY id DESC`
+func (c *Conn) GetAllUrls(id int) ([]*Url, error) {
+    stmt := `SELECT id, target, hash, clicked, created FROM urls WHERE user_id = ? ORDER BY id DESC`
     urls := []*Url{}
 
-    rows, err := u.DB.Queryx(stmt)
+    rows, err := c.DB.Queryx(stmt, id)
     if err != nil {
         return nil, err
     }
@@ -58,14 +67,13 @@ func (u *Urls) GetAll() ([]*Url, error) {
 }
 
 
-func (u *Urls) Create(target string) (int, string, error) {
-    stmt := `INSERT INTO urls (target, hash) VALUES (?, ?)`
+func (c *Conn) CreateUrl(uid int, target string) (int, string, error) {
+    stmt := `INSERT INTO urls (target, hash, user_id) VALUES (?, ?, ?)`
 
     hashLen := genRandNum(5, 7)
-    // hashLen := 5
     tHash := genHash(target, hashLen)
 
-    res, err := u.DB.Exec(stmt, target, tHash)
+    res, err := c.DB.Exec(stmt, target, tHash, uid)
     if err != nil {
         return 0, "", err
     }
@@ -79,10 +87,10 @@ func (u *Urls) Create(target string) (int, string, error) {
 }
 
 
-func (u *Urls) IncrementClicked(hash string) error {
+func (c *Conn) IncrementClicked(hash string) error {
     stmt := `UPDATE urls SET clicked = clicked + 1 WHERE hash = ?`
 
-    _, err := u.DB.Exec(stmt, hash)
+    _, err := c.DB.Exec(stmt, hash)
     if err != nil {
         return err
     }
@@ -91,10 +99,10 @@ func (u *Urls) IncrementClicked(hash string) error {
 }
 
 
-func (u *Urls) Delete(hash string) error {
-    stmt := `DELETE FROM urls WHERE hash = ?`
+func (c *Conn) DeleteUrl(id int, hash string) error {
+    stmt := `DELETE FROM urls WHERE hash = ? AND user_id = ?`
 
-    _, err := u.DB.Exec(stmt, hash)
+    _, err := c.DB.Exec(stmt, hash, id)
     if err != nil {
         return err
     }
@@ -102,11 +110,12 @@ func (u *Urls) Delete(hash string) error {
 }
 
 
-func (u *Urls) TableIsEmpty() (int, error) {
+/*
+func (c *Conn) TableIsEmpty(table string) (int, error) {
     var isEmpty int
 
-    stmt := `SELECT CASE WHEN EXISTS(SELECT 1 FROM urls) THEN 0 ELSE 1 END AS IsEmpty`
-    res := u.DB.QueryRowx(stmt)
+    stmt := `SELECT CASE WHEN EXISTS(SELECT 1 FROM ?) THEN 0 ELSE 1 END AS IsEmpty`
+    res := c.DB.QueryRowx(stmt, table)
 
     err := res.Scan(&isEmpty)
     if err != nil {
@@ -114,4 +123,41 @@ func (u *Urls) TableIsEmpty() (int, error) {
     }
 
     return isEmpty, nil
+}
+*/
+
+
+func (c *Conn) CreateUser(uuid, password string) error {
+    stmt := `INSERT INTO users (uuid, pass_hash) VALUES (?, ?)`
+
+    pass_hash, err := bcrypt.GenerateFromPassword([]byte(password), 12)
+    if err != nil {
+        return err
+    }
+
+    _, err = c.DB.Exec(stmt, uuid, string(pass_hash))
+    if err != nil {
+        return err
+    }
+
+    return nil
+}
+
+
+func (c *Conn) AuthenticatUser(uuid, pass string) (int, error) {
+    var id int
+    var tmpPass string
+    stmt := `SELECT id, pass_hash FROM users WHERE uuid = ?`
+
+    err := c.DB.QueryRowx(stmt, uuid).Scan(&id, &tmpPass)
+    if err != nil {
+        return 0, err
+    }
+
+    err = bcrypt.CompareHashAndPassword([]byte(tmpPass), []byte(pass))
+    if err != nil {
+        return 0, err
+    }
+
+    return id, nil
 }

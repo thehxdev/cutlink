@@ -1,8 +1,7 @@
-{{define "base"}}
 <!DOCTYPE html>
 <html lang="en" data-bs-theme="dark">
     <head>
-        <title>{{template "title" .}} - Cutlink</title>
+        <title>{{.title}} - Cutlink</title>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
 
@@ -20,13 +19,7 @@
     </head>
 
     <body>
-        {{template "nav" .}}
-
-        <main>
-            {{template "main" .}}
-        </main>
-
-        {{template "footer" .}}
+        {{embed}}
     </body>
 </html>
-{{end}}
+

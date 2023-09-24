@@ -1,5 +1,4 @@
-{{define "urltable"}}
-<div id="urls-table" class="table-responsive">
+<div id="urls-table" class="container table-responsive">
     <table class="table table-striped align-middle table-responsive">
         <thead>
             <tr>
@@ -16,9 +15,8 @@
         <!-- <tbody hx-confirm="Are you sure?" hx-target="closest tr" hx-swap="outerHTML swap:0.5s"> -->
         <tbody id="urls-table-body" class="table-group-divider" hx-target="closest tr" hx-swap="outerHTML swap:0.5s">
         {{range .Urls}}
-            {{template "urlrow" .}}
+            {{template "partials/urlrow" .}}
         {{end}}
         </tbody>
     </table>
 </div>
-{{end}}

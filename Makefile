@@ -1,13 +1,17 @@
-cutlink: $(wildcard ./cmd/*.go) $(wildcard ./db/*.go)
+BIN := ./bin/cutlink
+DB_FILE := database.db
+MAIN_SRC := ./cmd
+
+$(BIN): $(DB_FILE) $(wildcard ./cmd/*.go) $(wildcard ./models/*.go)
 	@mkdir -p ./bin
-	go build -o ./bin/cutlink ./cmd/...
+	go build -o $(BIN) $(MAIN_SRC)/...
 
-run: $(wildcard ./cmd/*.go) $(wildcard ./db/*.go)
-	go run ./cmd/...
+run: $(DB_FILE) $(wildcard ./cmd/*.go) $(wildcard ./db/*.go)
+	go run $(MAIN_SRC)/...
 
-db: sqlite.sql
-	cat sqlite.sql | sqlite3 database.db
+$(DB_FILE): sqlite.sql
+	cat sqlite.sql | sqlite3 $(DB_FILE)
 
 
 clean:
-	rm -rf ./bin ./database.db
+	rm -rf ./bin $(DB_FILE)
