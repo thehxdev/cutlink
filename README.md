@@ -2,7 +2,7 @@
 
 A simple link shortener written in golang with focuse on privacy and anonymity.
 
-> [!INFO]
+> [!NOTE]
 > This project is under active development.
 
 
