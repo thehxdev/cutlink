@@ -10,8 +10,14 @@ import (
 )
 
 
-var urlMatcher *regexp.Regexp = regexp.MustCompile(
+var (
+
+urlMatcher *regexp.Regexp = regexp.MustCompile(
     `^((http|https)://)[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)$`)
+
+userIdMatcher *regexp.Regexp = regexp.MustCompile(
+        `[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}`)
+)
 
 
 func (cl *cutlink) HomePage(c *fiber.Ctx) error {
@@ -49,6 +55,7 @@ func (cl *cutlink) HomePage(c *fiber.Ctx) error {
 func (cl *cutlink) SignupPage(c *fiber.Ctx) error {
     err := c.Render("signup", fiber.Map{
         "title": "Signup",
+        "disabled": cl.DisableSignup,
     }, "layouts/main")
 
     if err != nil {
@@ -61,6 +68,10 @@ func (cl *cutlink) SignupPage(c *fiber.Ctx) error {
 
 
 func (cl *cutlink) SignupUser(c *fiber.Ctx) error {
+    if cl.DisableSignup {
+        return c.SendString("Signup is disabled.")
+    }
+
     password := c.FormValue("password", "")
     if password == "" || len(password) <= 8 {
         cl.ErrorLog.Println("provided password is not valid")
@@ -114,6 +125,10 @@ func (cl *cutlink) LoginUser(c *fiber.Ctx) error {
     password := c.FormValue("password", "")
     userID   := c.FormValue("uuid", "")
 
+    if !userIdMatcher.Match([]byte(userID)) {
+        return fiber.ErrInternalServerError
+    }
+
     id, err := cl.Conn.AuthenticatUser(userID, password)
     if err != nil {
         cl.ErrorLog.Println(err.Error())
@@ -139,6 +154,29 @@ func (cl *cutlink) LogoutUser(c *fiber.Ctx) error {
         return fiber.ErrInternalServerError
     }
     id := sess.Get("authenticatedUserID")
+
+    if id != nil {
+        sess.Regenerate()
+        sess.Destroy()
+        sess.Save()
+    }
+
+    return c.Redirect("/", fiber.StatusSeeOther)
+}
+
+
+func (cl *cutlink) DeleteUser(c *fiber.Ctx) error {
+    sess, err := cl.Store.Get(c)
+    if err != nil {
+        cl.ErrorLog.Println(err.Error())
+        return fiber.ErrInternalServerError
+    }
+    id := sess.Get("authenticatedUserID")
+
+    err = cl.Conn.DeleteUser(id.(int))
+    if err != nil {
+        return fiber.ErrInternalServerError
+    }
 
     if id != nil {
         sess.Regenerate()

@@ -1,7 +1,7 @@
 package main
 
 import (
-    "strings"
+    // "strings"
     "time"
 
     "github.com/gofiber/fiber/v2"
@@ -19,7 +19,8 @@ func (cl *cutlink) setupRoutes() {
     cl.App.Post("/auth/signup", cl.SignupUser)
     cl.App.Get("/auth/login", cl.LoginPage)
     cl.App.Post("/auth/login", cl.LoginUser)
-    cl.App.Get("/auth/logout", cl.LogoutUser)
+    cl.App.Post("/auth/logout", cl.LogoutUser)
+    cl.App.Post("/auth/delete", cl.DeleteUser)
     cl.App.Get("/r/:hash", cl.Redirector)
     cl.App.Post("/add", cl.AddUrl)
     cl.App.Delete("/delete/:hash", cl.DeleteUrl)
@@ -30,7 +31,8 @@ func (cl *cutlink) setupMiddlewares() {
     // setup rate limiter middleware
     cl.App.Use(limiter.New(limiter.Config{
         Next: func (c *fiber.Ctx) bool {
-            return (!strings.HasPrefix(c.Path(), "/auth"))
+            return !(c.Path() == "/auth/signup")
+            // return (!strings.HasPrefix(c.Path(), "/auth/signup"))
         },
         Max: 20,
         Expiration: 60 * time.Second,

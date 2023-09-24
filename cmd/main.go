@@ -14,21 +14,24 @@ import (
     "github.com/gofiber/fiber/v2"
     "github.com/gofiber/template/html/v2"
     "github.com/gofiber/fiber/v2/middleware/session"
+    fiberSQLstore "github.com/gofiber/storage/sqlite3/v2"
 )
 
 
 type cutlink struct {
-    App         *fiber.App
-    Conn        *models.Conn
-    ErrorLog    *log.Logger
-    InfoLog     *log.Logger
-    Store       *session.Store
+    App             *fiber.App
+    Conn            *models.Conn
+    ErrorLog        *log.Logger
+    InfoLog         *log.Logger
+    Store           *session.Store
+    DisableSignup   bool
 }
 
 
 func main() {
-    addr    := flag.String("addr", ":5000", "Listening Address")
-    dbFile  := flag.String("db", "./database.db", "Path to database file")
+    addr     := flag.String("addr", ":5000", "Listening Address")
+    dbFile   := flag.String("db", "./database.db", "Path to database file")
+    noSignUp := flag.Bool("disable-signup", false, "Disable user signup")
     flag.Parse()
 
     infoLog := log.New(os.Stdout, "[INFO]\t", log.Ldate|log.Ltime)
@@ -42,12 +45,20 @@ func main() {
     defer db.Close()
 
 
+    storage := fiberSQLstore.New(fiberSQLstore.Config{
+        Database: "./sessions.db",
+        GCInterval: 30 * time.Second,
+    })
+
     engine := html.New("./ui/html", ".html")
+
     store := session.New(session.Config{
         Expiration: 12 * time.Hour,
         CookieHTTPOnly: true,
         CookieSecure: true,
+        Storage: storage,
     })
+
     app := fiber.New(fiber.Config{
         Views: engine,
     })
@@ -58,6 +69,7 @@ func main() {
         InfoLog: infoLog,
         Conn: &models.Conn{ DB: db, },
         Store: store,
+        DisableSignup: *noSignUp,
     }
 
     cl.setupMiddlewares()

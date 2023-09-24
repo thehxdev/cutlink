@@ -161,3 +161,21 @@ func (c *Conn) AuthenticatUser(uuid, pass string) (int, error) {
 
     return id, nil
 }
+
+
+func (c *Conn) DeleteUser(id int) error {
+    stmt1 := `DELETE FROM users WHERE id = ?`
+    stmt2 := `DELETE FROM urls WHERE user_id = ?`
+
+    _, err := c.DB.Exec(stmt1, id)
+    if err != nil {
+        return err
+    }
+
+    _, err = c.DB.Exec(stmt2, id)
+    if err != nil {
+        return err
+    }
+
+    return nil
+}

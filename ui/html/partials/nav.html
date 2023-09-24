@@ -7,7 +7,16 @@
             <ul class="nav col-12 col-md-auto mb-2 justify-content-center mb-md-0 nav-pills">
                 {{if .authenticated}}
                 <li class="nav-item">
-                    <a href="/auth/logout" class="nav-link active" aria-current="page">Logout</a>
+                    <!-- <a href="/auth/logout" class="nav-link active" aria-current="page">Logout</a> -->
+                    <form method="POST" action="/auth/logout">
+                        <button class="btn btn-primary mx-1 px-3" type="submit">Logout</button>
+                    </form>
+                </li>
+                <li class="nav-item">
+                    <!-- <a href="/auth/delete" class="nav-link danger" aria-current="page">Delete Account</a> -->
+                    <form method="POST" action="/auth/delete">
+                        <button class="btn btn-danger mx-1 px-3" type="submit">Delete Account</button>
+                    </form>
                 </li>
                 {{else}}
                 <li class="nav-item">

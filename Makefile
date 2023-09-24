@@ -1,17 +1,19 @@
 BIN := ./bin/cutlink
-DB_FILE := database.db
+MAIN_DB_FILE := database.db
+SESSIONS_DB_FILE := sessions.db
 MAIN_SRC := ./cmd
 
-$(BIN): $(DB_FILE) $(wildcard ./cmd/*.go) $(wildcard ./models/*.go)
+
+$(BIN): $(MAIN_DB_FILE) $(wildcard ./cmd/*.go) $(wildcard ./models/*.go)
 	@mkdir -p ./bin
-	go build -o $(BIN) $(MAIN_SRC)/...
+	CGO_ENABLED=1 go build -o $(BIN) $(MAIN_SRC)/...
 
-run: $(DB_FILE) $(wildcard ./cmd/*.go) $(wildcard ./db/*.go)
-	go run $(MAIN_SRC)/...
+run: $(MAIN_DB_FILE) $(wildcard ./cmd/*.go) $(wildcard ./db/*.go)
+	CGO_ENABLED=1 go run $(MAIN_SRC)/...
 
-$(DB_FILE): sqlite.sql
-	cat sqlite.sql | sqlite3 $(DB_FILE)
+$(MAIN_DB_FILE): sqlite.sql
+	cat sqlite.sql | sqlite3 $(MAIN_DB_FILE)
 
 
 clean:
-	rm -rf ./bin $(DB_FILE)
+	rm -rf ./bin $(SESSIONS_DB_FILE) $(MAIN_DB_FILE)
