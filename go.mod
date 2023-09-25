@@ -7,7 +7,6 @@ require (
 	github.com/gofiber/storage/sqlite3/v2 v2.0.0
 	github.com/gofiber/template/html/v2 v2.0.5
 	github.com/google/uuid v1.3.1
-	github.com/jmoiron/sqlx v1.3.5
 	github.com/mattn/go-sqlite3 v1.14.17
 	golang.org/x/crypto v0.13.0
 )

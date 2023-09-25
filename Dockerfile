@@ -1,4 +1,4 @@
-FROM golang:1.21
+FROM golang:1.21-bookworm
 
 WORKDIR /app
 COPY . .
@@ -8,6 +8,8 @@ RUN apt-get update -y && apt-get upgrade -y
 RUN apt-get install sqlite3 -y && apt-get install build-essential -y
 RUN mkdir ./bin
 RUN cat sqlite.sql | sqlite3 database.db
-RUN CGO_ENABLED=1 go build -o ./bin/cutlink ./cmd/...
+# ENV GOPROXY=direct
+ENV CGO_ENABLED=1
+RUN go build -o ./bin/cutlink ./cmd/...
 
-ENTRYPOINT ["./bin/cutlink"]
+CMD ["./bin/cutlink"]

@@ -17,3 +17,6 @@ $(MAIN_DB_FILE): sqlite.sql
 
 clean:
 	rm -rf ./bin $(SESSIONS_DB_FILE) $(MAIN_DB_FILE)
+
+docker: ./Dockerfile
+	docker build -t cutlink .
