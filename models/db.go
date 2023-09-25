@@ -2,8 +2,8 @@ package models
 
 import (
 	"time"
+    "database/sql"
 
-    "github.com/jmoiron/sqlx"
     "golang.org/x/crypto/bcrypt"
 )
 
@@ -26,7 +26,7 @@ type User struct {
 
 
 type Conn struct {
-    DB *sqlx.DB
+    DB *sql.DB
 }
 
 
@@ -34,7 +34,7 @@ func (c *Conn) GetUrl(hash string) (*Url, error) {
     stmt := `SELECT id, target, hash, clicked, created FROM urls WHERE hash = ?`
     url := &Url{}
 
-    err := c.DB.QueryRowx(stmt, hash).Scan(&url.ID, &url.Target, &url.Hash, &url.Clicked, &url.Created)
+    err := c.DB.QueryRow(stmt, hash).Scan(&url.ID, &url.Target, &url.Hash, &url.Clicked, &url.Created)
     if err != nil {
         return nil, err
     }
@@ -47,7 +47,7 @@ func (c *Conn) GetAllUrls(id int) ([]*Url, error) {
     stmt := `SELECT id, target, hash, clicked, created FROM urls WHERE user_id = ? ORDER BY id DESC`
     urls := []*Url{}
 
-    rows, err := c.DB.Queryx(stmt, id)
+    rows, err := c.DB.Query(stmt, id)
     if err != nil {
         return nil, err
     }
@@ -149,7 +149,7 @@ func (c *Conn) AuthenticatUser(uuid, pass string) (int, error) {
     var tmpPass string
     stmt := `SELECT id, pass_hash FROM users WHERE uuid = ?`
 
-    err := c.DB.QueryRowx(stmt, uuid).Scan(&id, &tmpPass)
+    err := c.DB.QueryRow(stmt, uuid).Scan(&id, &tmpPass)
     if err != nil {
         return 0, err
     }

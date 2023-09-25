@@ -6,9 +6,9 @@ import (
     "fmt"
     "flag"
     "time"
+    "database/sql"
     "cutlink/models"
 
-    "github.com/jmoiron/sqlx"
     _ "github.com/mattn/go-sqlite3"
 
     "github.com/gofiber/fiber/v2"
@@ -34,41 +34,35 @@ func main() {
     noSignUp := flag.Bool("disable-signup", false, "Disable user signup")
     flag.Parse()
 
-    infoLog := log.New(os.Stdout, "[INFO]\t", log.Ldate|log.Ltime)
-    errLog  := log.New(os.Stderr, "[ERROR]\t", log.Ldate|log.Ltime|log.Lshortfile)
 
-
-    db, err := sqlx.Open("sqlite3", fmt.Sprintf("%s?parseTime=true", *dbFile))
+    db, err := sql.Open("sqlite3", fmt.Sprintf("%s?parseTime=true", *dbFile))
     if err != nil {
-        errLog.Fatal(err)
+        log.Fatal(err)
     }
     defer db.Close()
 
 
-    storage := fiberSQLstore.New(fiberSQLstore.Config{
-        Database: "./sessions.db",
-        GCInterval: 30 * time.Second,
-    })
-
-    engine := html.New("./ui/html", ".html")
-
-    store := session.New(session.Config{
-        Expiration: 12 * time.Hour,
-        CookieHTTPOnly: true,
-        CookieSecure: true,
-        Storage: storage,
-    })
-
-    app := fiber.New(fiber.Config{
-        Views: engine,
-    })
-
     cl := &cutlink{
-        App: app,
-        ErrorLog: errLog,
-        InfoLog: infoLog,
+        App: fiber.New(fiber.Config{
+            Views: html.New("./ui/html", ".html"),
+        }),
+
+        ErrorLog: log.New(os.Stderr, "[ERROR]\t", log.Ldate|log.Ltime|log.Lshortfile),
+
+        InfoLog: log.New(os.Stdout, "[INFO]\t", log.Ldate|log.Ltime),
+
         Conn: &models.Conn{ DB: db, },
-        Store: store,
+
+        Store: session.New(session.Config{
+            Expiration: 12 * time.Hour,
+            CookieHTTPOnly: true,
+            CookieSecure: true,
+            Storage: fiberSQLstore.New(fiberSQLstore.Config{
+                Database: "./sessions.db",
+                GCInterval: 30 * time.Second,
+            }),
+        }),
+
         DisableSignup: *noSignUp,
     }
 
