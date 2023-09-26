@@ -10,6 +10,17 @@ A simple link shortener written in golang with focuse on privacy and anonymity.
 > I did not red any article or books about this kind of programs and also not even watched a tutorial video. I wrote this program with my own thoughts about how a link shortener _may_ work.
 
 
+## Features
+
+Link shortener services are simple. But CutLink is different in some points.
+
+- No email or personal information needed for sign-up. Your username is a randomly generated UUIDv4 that will show you only **one** time after you specified your password.
+- You own your data. if you delete your account, **ALL** of your data will be deleted from database (Real delete :D).
+- Only server-side errors are logged (for troubleshooting).
+- You can build your own server if you don't trust others.
+- Simple UI.
+
+
 ## Build
 
 > [!NOTE]
@@ -51,9 +62,10 @@ Since this is my first web development project after one year of Python and C pr
 is expected. I try to learn more and make this project better.
 
 - Create docker-compose file for better experience with docker.
-- Better error handling on client-side errors (All of them handled with `Internal Server Error`)
-- Better (but VERY simple) UI (First time building front-ends)
-- Check for security vulnerabilities (Sessions and CSRF are already present)
+- Better error handling on client-side errors (All of them handled with `Internal Server Error`).
+- Better (but VERY simple) UI (First time building front-ends).
+- Check for security vulnerabilities (Sessions and CSRF are already present).
+- Better form information checking.
 
 
 ## Features to implement
