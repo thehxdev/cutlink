@@ -4,6 +4,7 @@ go 1.21.1
 
 require (
 	github.com/gofiber/fiber/v2 v2.49.2
+	github.com/gofiber/helmet/v2 v2.2.26
 	github.com/gofiber/storage/sqlite3/v2 v2.0.0
 	github.com/gofiber/template/html/v2 v2.0.5
 	github.com/google/uuid v1.3.1

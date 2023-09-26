@@ -1,12 +1,12 @@
 package main
 
 import (
-    // "strings"
     "time"
 
     "github.com/gofiber/fiber/v2"
     "github.com/gofiber/fiber/v2/middleware/limiter"
-    // "github.com/gofiber/fiber/v2/middleware/csrf"
+    "github.com/gofiber/fiber/v2/middleware/csrf"
+    "github.com/gofiber/helmet/v2"
 )
 
 func (cl *cutlink) setupRoutes() {
@@ -32,7 +32,6 @@ func (cl *cutlink) setupMiddlewares() {
     cl.App.Use(limiter.New(limiter.Config{
         Next: func (c *fiber.Ctx) bool {
             return !(c.Path() == "/auth/signup")
-            // return (!strings.HasPrefix(c.Path(), "/auth/signup"))
         },
         Max: 20,
         Expiration: 60 * time.Second,
@@ -40,5 +39,16 @@ func (cl *cutlink) setupMiddlewares() {
             return c.SendString("Rate Limit Reached. Wait for 60 seconds.")
         },
     }))
-    // cl.App.Use(csrf.New())
+
+
+    // setup CSRF protection
+    cl.App.Use(csrf.New(csrf.Config{
+        KeyLookup: "cookie:csrf_",
+        // CookieName: "csrf_",
+        CookieSecure: true,
+        CookieHTTPOnly: true,
+        CookieSameSite: "Strict",
+    }))
+
+    cl.App.Use(helmet.New())
 }
