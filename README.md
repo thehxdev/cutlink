@@ -33,8 +33,10 @@ make
 ```bash
 # build docker image
 make docker
+```
 
-# make executable with golang docker container.
+- Build the executable with golang docker container:
+```bash
 # This is same as make command but builds the project inside golang docker container.
 make docker_exe
 ```
