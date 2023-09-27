@@ -5,6 +5,7 @@ A simple link shortener written in golang with focuse on privacy and anonymity.
 > [!NOTE]
 > This project is under active development.
 
+
 ## Features
 
 Link shortener services are simple. But CutLink is different in some points.
@@ -30,9 +31,12 @@ make
 
 - Build docker image:
 ```bash
-# This command will build the project and
-# outputs the executable to ./bin directory.
+# build docker image
 make docker
+
+# make executable with golang docker container.
+# This is same as make command but builds the project inside golang docker container.
+make docker_exe
 ```
 
 
