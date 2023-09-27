@@ -45,7 +45,7 @@ func (c *Conn) GetUrl(hash string) (*Url, error) {
 
 
 func (c *Conn) GetAllUrls(id int) ([]*Url, error) {
-    stmt := `SELECT id, target, hash, clicked, created FROM urls WHERE user_id = ? ORDER BY id DESC`
+    stmt := `SELECT id, target, hash, pass_hash, clicked, created FROM urls WHERE user_id = ? ORDER BY id DESC`
     urls := []*Url{}
 
     rows, err := c.DB.Query(stmt, id)
@@ -56,7 +56,7 @@ func (c *Conn) GetAllUrls(id int) ([]*Url, error) {
 
     for rows.Next() {
         url := &Url{}
-        err := rows.Scan(&url.ID, &url.Target, &url.Hash, &url.Clicked, &url.Created)
+        err := rows.Scan(&url.ID, &url.Target, &url.Hash, &url.PassHash, &url.Clicked, &url.Created)
         if err != nil {
             return nil, err
         }
