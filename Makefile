@@ -22,5 +22,6 @@ docker: ./Dockerfile
 	docker build -t cutlink .
 
 # Build executable file in golang docker container
+# Using bullseye version because of glibc backward compatibility
 docker_exe: clean
 	docker run --rm -v $(shell pwd):/app -w /app golang:1.21-bullseye make
