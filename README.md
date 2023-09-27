@@ -24,9 +24,9 @@ Link shortener services are simple. But CutLink is different in some points.
 
 - Build the executable:
 ```bash
-# This command will build the project and
-# outputs the executable to ./bin directory.
-make
+# This command will build the project and sqlite database
+# and outputs the executable to ./bin directory.
+make all
 ```
 
 - Build docker image:
