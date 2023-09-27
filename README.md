@@ -79,5 +79,4 @@ is expected. I try to learn more and make this project better.
 ## Features to implement
 
 - Date or Click limit for links
-- Password protection for links
 - Admin control for better server management
