@@ -1,7 +1,7 @@
 package models
 
 import (
-	"time"
+    "time"
     "database/sql"
 
     "golang.org/x/crypto/bcrypt"
@@ -12,6 +12,7 @@ type Url struct {
     ID          int
     Target      string
     Hash        string
+    PassHash    string
     Clicked     int
     Created     *time.Time
     UserID      int
@@ -19,8 +20,8 @@ type Url struct {
 
 
 type User struct {
-    ID             int
-    UUID_hash    string
+    ID          int
+    UUID        string
     PassHash    string
 }
 
@@ -31,10 +32,10 @@ type Conn struct {
 
 
 func (c *Conn) GetUrl(hash string) (*Url, error) {
-    stmt := `SELECT id, target, hash, clicked, created FROM urls WHERE hash = ?`
+    stmt := `SELECT id, target, hash, pass_hash, clicked, created FROM urls WHERE hash = ?`
     url := &Url{}
 
-    err := c.DB.QueryRow(stmt, hash).Scan(&url.ID, &url.Target, &url.Hash, &url.Clicked, &url.Created)
+    err := c.DB.QueryRow(stmt, hash).Scan(&url.ID, &url.Target, &url.Hash, &url.PassHash, &url.Clicked, &url.Created)
     if err != nil {
         return nil, err
     }
@@ -67,13 +68,22 @@ func (c *Conn) GetAllUrls(id int) ([]*Url, error) {
 }
 
 
-func (c *Conn) CreateUrl(uid int, target string) (int, string, error) {
-    stmt := `INSERT INTO urls (target, hash, user_id) VALUES (?, ?, ?)`
+func (c *Conn) CreateUrl(uid int, target, password string) (int, string, error) {
+    var passHash []byte = nil
+    var err error
+
+    stmt := `INSERT INTO urls (target, hash, pass_hash, user_id) VALUES (?, ?, ?, ?)`
 
     hashLen := genRandNum(5, 7)
     tHash := genHash(target, hashLen)
+    if password != "" {
+        passHash, err = bcrypt.GenerateFromPassword([]byte(password), 12)
+        if err != nil {
+            return 0, "", err
+        }
+    }
 
-    res, err := c.DB.Exec(stmt, target, tHash, uid)
+    res, err := c.DB.Exec(stmt, target, tHash, string(passHash), uid)
     if err != nil {
         return 0, "", err
     }
@@ -130,12 +140,12 @@ func (c *Conn) TableIsEmpty(table string) (int, error) {
 func (c *Conn) CreateUser(uuid, password string) error {
     stmt := `INSERT INTO users (uuid, pass_hash) VALUES (?, ?)`
 
-    pass_hash, err := bcrypt.GenerateFromPassword([]byte(password), 12)
+    passHash, err := bcrypt.GenerateFromPassword([]byte(password), 12)
     if err != nil {
         return err
     }
 
-    _, err = c.DB.Exec(stmt, uuid, string(pass_hash))
+    _, err = c.DB.Exec(stmt, uuid, string(passHash))
     if err != nil {
         return err
     }

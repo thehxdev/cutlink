@@ -33,6 +33,9 @@ make
 ```bash
 # build docker image
 make docker
+
+# run docker image (port 5000)
+docker run -d -p 5000:5000 cutlink:latest
 ```
 
 - Build the executable with golang docker container:

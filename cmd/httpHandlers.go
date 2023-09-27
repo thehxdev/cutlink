@@ -5,8 +5,9 @@ import (
     "regexp"
     "cutlink/models"
 
-    "github.com/gofiber/fiber/v2"
     "github.com/google/uuid"
+    "golang.org/x/crypto/bcrypt"
+    "github.com/gofiber/fiber/v2"
 )
 
 
@@ -209,10 +210,42 @@ func (cl *cutlink) Redirector(c *fiber.Ctx) error {
     if hash == "" {
         return fiber.ErrInternalServerError
     }
+    target, err := cl.Conn.GetUrl(hash)
+    if err != nil {
+        return fiber.ErrNotFound
+    }
+
+    if target.PassHash != "" {
+        return c.Render("redirect", fiber.Map{
+            "title": "Protected",
+            "hash": target.Hash,
+        }, "layouts/main")
+    }
+
+    err = cl.Conn.IncrementClicked(hash)
+    if err != nil {
+        cl.ErrorLog.Println("Incrementing for", target.Hash, "Failed")
+    }
+
+    return c.Redirect(target.Target, fiber.StatusSeeOther)
+}
+
+
+func (cl *cutlink) RedirectorPassword(c *fiber.Ctx) error {
+    hash := c.Params("hash")
+    if hash == "" {
+        return fiber.ErrNotFound
+    }
 
     target, err := cl.Conn.GetUrl(hash)
     if err != nil {
         return fiber.ErrNotFound
+    }
+    password := c.FormValue("password", "")
+
+    err = bcrypt.CompareHashAndPassword([]byte(target.PassHash), []byte(password))
+    if err != nil {
+        return fiber.ErrInternalServerError
     }
 
     err = cl.Conn.IncrementClicked(hash)
@@ -228,24 +261,20 @@ func (cl *cutlink) AddUrl(c *fiber.Ctx) error {
     sess, err := cl.Store.Get(c)
     if err != nil {
         cl.ErrorLog.Println(err.Error())
-        return fiber.NewError(fiber.StatusInternalServerError, "Internal Server Error")
+        return fiber.ErrInternalServerError
     }
     id := sess.Get("authenticatedUserID")
 
     target := c.FormValue("target", "")
-    if target == "" {
-        return fiber.NewError(fiber.StatusInternalServerError, "Internal Server Error")
+    if target == "" || !urlMatcher.Match([]byte(target)) {
+        return fiber.ErrInternalServerError
     }
+    password := c.FormValue("password", "")
 
-    if !urlMatcher.Match([]byte(target)) {
-        cl.ErrorLog.Println("target url does not match the pattern")
-        return c.Redirect("/", fiber.StatusSeeOther)
-    }
-
-    _, _, err = cl.Conn.CreateUrl(id.(int), target)
+    _, _, err = cl.Conn.CreateUrl(id.(int), target, password)
     if (err != nil) {
         cl.ErrorLog.Println(err.Error())
-        return fiber.NewError(fiber.StatusInternalServerError, "Internal Server Error")
+        return fiber.ErrInternalServerError
     }
 
     return c.Redirect("/", fiber.StatusSeeOther)
