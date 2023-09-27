@@ -66,6 +66,12 @@ func main() {
         DisableSignup: *noSignUp,
     }
 
+    // setup static file server first
+    cl.App.Static("/static", "./ui/static", fiber.Static{
+        Browse: false,
+        CacheDuration: 10 * time.Second,
+    })
+
     cl.setupMiddlewares()
     cl.setupRoutes()
 

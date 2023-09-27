@@ -2,6 +2,7 @@ package main
 
 import (
     "time"
+    "strings"
 
     "github.com/gofiber/fiber/v2"
     "github.com/gofiber/fiber/v2/middleware/limiter"
@@ -10,10 +11,6 @@ import (
 )
 
 func (cl *cutlink) setupRoutes() {
-    cl.App.Static("/static", "./ui/static", fiber.Static{
-        Browse: false,
-        CacheDuration: 10 * time.Second,
-    })
     cl.App.Get("/", cl.HomePage)
     cl.App.Get("/auth/signup", cl.SignupPage)
     cl.App.Post("/auth/signup", cl.SignupUser)
@@ -31,12 +28,14 @@ func (cl *cutlink) setupMiddlewares() {
     // setup rate limiter middleware
     cl.App.Use(limiter.New(limiter.Config{
         Next: func (c *fiber.Ctx) bool {
-            return !(c.Path() == "/auth/signup")
+            return (strings.HasPrefix(c.Path(), "/r") || strings.HasPrefix(c.Path(), "/delete"))
         },
-        Max: 20,
-        Expiration: 60 * time.Second,
+        Max: 5,
+        Expiration: 30 * time.Second,
         LimitReached: func (c *fiber.Ctx) error {
-            return c.SendString("Rate Limit Reached. Wait for 60 seconds.")
+            return c.Render("rateLimit", fiber.Map{
+                "title": "Rate Limit",
+            }, "layouts/main")
         },
     }))
 

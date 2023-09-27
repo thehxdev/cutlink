@@ -22,6 +22,7 @@ userIdMatcher *regexp.Regexp = regexp.MustCompile(
 
 func (cl *cutlink) HomePage(c *fiber.Ctx) error {
     var urls []*models.Url
+
     sess, err := cl.Store.Get(c)
     if err != nil {
         cl.ErrorLog.Println(err.Error())
@@ -33,7 +34,7 @@ func (cl *cutlink) HomePage(c *fiber.Ctx) error {
         urls, err = cl.Conn.GetAllUrls(id.(int))
         if err != nil {
             cl.ErrorLog.Println(err.Error())
-            return fiber.NewError(fiber.StatusInternalServerError, "Internal Server Error")
+            return fiber.ErrInternalServerError
         }
     }
 
@@ -74,15 +75,14 @@ func (cl *cutlink) SignupUser(c *fiber.Ctx) error {
 
     password := c.FormValue("password", "")
     if password == "" || len(password) <= 8 {
-        cl.ErrorLog.Println("provided password is not valid")
-        retval := `<div class="container alert alert-danger" role="alert"><h4>Password Is NOT Valid</h4></div>`
+        retval := `<div class="container alert alert-danger" role="alert"><h4>Password is NOT valid</h4></div>`
         return c.SendString(retval)
     }
 
     userID, err := uuid.NewRandom()
     if err != nil {
         cl.ErrorLog.Println(err.Error())
-        return fiber.NewError(fiber.StatusInternalServerError, "Internal Server Error")
+        return fiber.ErrInternalServerError
     }
 
     err = cl.Conn.CreateUser(userID.String(), password)
@@ -91,10 +91,8 @@ func (cl *cutlink) SignupUser(c *fiber.Ctx) error {
         return fiber.NewError(fiber.StatusInternalServerError, "Internal Server Error")
     }
 
-    cl.InfoLog.Println("new user created with uuid", userID.String())
-
     retval := fmt.Sprintf(
-        `<div class="container alert alert-success" role="alert"><h2>UUID</h2><code style="font-size: 20px">%s</code></div>`,
+        `<div class="container alert alert-success" role="alert"><h3>UUID</h3><code style="font-size: 20px">%s</code></div>`,
         userID.String())
     err = c.SendString(retval)
 
@@ -141,8 +139,19 @@ func (cl *cutlink) LoginUser(c *fiber.Ctx) error {
         return fiber.ErrInternalServerError
     }
 
+    err = sess.Regenerate()
+    if err != nil {
+        cl.ErrorLog.Println(err.Error())
+        return fiber.ErrInternalServerError
+    }
+
     sess.Set("authenticatedUserID", id)
-    sess.Save()
+    err = sess.Save()
+    if err != nil {
+        cl.ErrorLog.Println(err.Error())
+        return fiber.ErrInternalServerError
+    }
+
     return c.Redirect("/", fiber.StatusSeeOther)
 }
 
@@ -153,13 +162,15 @@ func (cl *cutlink) LogoutUser(c *fiber.Ctx) error {
         cl.ErrorLog.Println(err.Error())
         return fiber.ErrInternalServerError
     }
-    id := sess.Get("authenticatedUserID")
 
-    if id != nil {
-        sess.Regenerate()
-        sess.Destroy()
-        sess.Save()
+    err = sess.Regenerate()
+    if err != nil {
+        cl.ErrorLog.Println(err.Error())
+        return fiber.ErrInternalServerError
     }
+
+    sess.Destroy()
+    sess.Save()
 
     return c.Redirect("/", fiber.StatusSeeOther)
 }
@@ -167,6 +178,12 @@ func (cl *cutlink) LogoutUser(c *fiber.Ctx) error {
 
 func (cl *cutlink) DeleteUser(c *fiber.Ctx) error {
     sess, err := cl.Store.Get(c)
+    if err != nil {
+        cl.ErrorLog.Println(err.Error())
+        return fiber.ErrInternalServerError
+    }
+
+    err = sess.Regenerate()
     if err != nil {
         cl.ErrorLog.Println(err.Error())
         return fiber.ErrInternalServerError
@@ -179,7 +196,6 @@ func (cl *cutlink) DeleteUser(c *fiber.Ctx) error {
     }
 
     if id != nil {
-        sess.Regenerate()
         sess.Destroy()
         sess.Save()
     }
@@ -191,12 +207,12 @@ func (cl *cutlink) DeleteUser(c *fiber.Ctx) error {
 func (cl *cutlink) Redirector(c *fiber.Ctx) error {
     hash := c.Params("hash")
     if hash == "" {
-        return fiber.NewError(fiber.StatusInternalServerError, "Internal Server Error")
+        return fiber.ErrInternalServerError
     }
 
     target, err := cl.Conn.GetUrl(hash)
     if err != nil {
-        return fiber.NewError(fiber.StatusNotFound, "Not Found")
+        return fiber.ErrNotFound
     }
 
     err = cl.Conn.IncrementClicked(hash)
@@ -232,7 +248,6 @@ func (cl *cutlink) AddUrl(c *fiber.Ctx) error {
         return fiber.NewError(fiber.StatusInternalServerError, "Internal Server Error")
     }
 
-    cl.InfoLog.Println("new url added:", target)
     return c.Redirect("/", fiber.StatusSeeOther)
 }
 
@@ -252,6 +267,5 @@ func (cl *cutlink) DeleteUrl(c *fiber.Ctx) error {
         return fiber.NewError(fiber.StatusInternalServerError, "Internal Server Error")
     }
 
-    cl.InfoLog.Printf("url with hash %s has been deleted", hash)
     return nil
 }
