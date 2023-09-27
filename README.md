@@ -40,6 +40,9 @@ docker run -d -p 5000:5000 cutlink:latest
 
 - Build the executable with golang docker container:
 ```bash
+# remove .git directory
+rm -rf .git/
+
 # This is same as make command but builds the project inside golang docker container.
 make docker_exe
 ```
