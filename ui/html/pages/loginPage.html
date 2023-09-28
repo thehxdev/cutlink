@@ -1,4 +1,10 @@
 <div id="login-form">
+    {{if .errMsg}}
+    <div class="container alert alert-danger">
+        <h2>Error</h2>
+        <p style="font-size: 20px">{{.errMsg}}</p>
+    </div>
+    {{end}}
     <form method="POST" action="/auth/login" class="mb-3 mx-1">
         <input name="uuid" type="text" class="form-inline rounded-pill px-2 py-2 mx-1 col" placeholder="User ID" required>
         <input name="password" type="password" class="form-inline rounded-pill px-2 py-2 mx-1 col" placeholder="Password" required>

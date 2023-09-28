@@ -12,27 +12,47 @@ import (
 
 
 var (
+    urlMatcher *regexp.Regexp = regexp.MustCompile(
+        `^((http|https)://)[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)$`)
 
-urlMatcher *regexp.Regexp = regexp.MustCompile(
-    `^((http|https)://)[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)$`)
-
-userIdMatcher *regexp.Regexp = regexp.MustCompile(
+    userIdMatcher *regexp.Regexp = regexp.MustCompile(
         `[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}`)
 )
+
+
+func (cl *cutlink) getUserID(c *fiber.Ctx) (int, error) {
+    sess, err := cl.Store.Get(c)
+    if err != nil {
+        return 0, err
+    }
+
+    id := sess.Get("authenticatedUserID")
+    if id == nil {
+        return 0, nil
+    }
+
+    return id.(int), nil
+}
+
+
+func (cl *cutlink) ErrorPage(c *fiber.Ctx, errMsg string) error {
+    return c.Render("error", fiber.Map{
+        "title": "Error",
+        "msg": errMsg,
+    }, "layouts/main")
+}
 
 
 func (cl *cutlink) HomePage(c *fiber.Ctx) error {
     var urls []*models.Url
 
-    sess, err := cl.Store.Get(c)
+    id, err := cl.getUserID(c)
     if err != nil {
         cl.ErrorLog.Println(err.Error())
-        return fiber.ErrInternalServerError
     }
-    id := sess.Get("authenticatedUserID")
 
-    if id != nil {
-        urls, err = cl.Conn.GetAllUrls(id.(int))
+    if id != 0 {
+        urls, err = cl.Conn.GetAllUrls(id)
         if err != nil {
             cl.ErrorLog.Println(err.Error())
             return fiber.ErrInternalServerError
@@ -47,10 +67,9 @@ func (cl *cutlink) HomePage(c *fiber.Ctx) error {
 
     if err != nil {
         cl.ErrorLog.Println(err.Error())
-        return err
     }
 
-    return nil
+    return err
 }
 
 
@@ -62,10 +81,9 @@ func (cl *cutlink) SignupPage(c *fiber.Ctx) error {
 
     if err != nil {
         cl.ErrorLog.Println(err.Error())
-        return err
     }
 
-    return nil
+    return err
 }
 
 
@@ -76,7 +94,10 @@ func (cl *cutlink) SignupUser(c *fiber.Ctx) error {
 
     password := c.FormValue("password", "")
     if password == "" || len(password) <= 8 {
-        retval := `<div class="container alert alert-danger" role="alert"><h4>Password is NOT valid</h4></div>`
+        retval := `<div class="container alert alert-danger" role="alert">
+        <h4>Password is not valid.</h4>
+        <p style="font-size: 20px;">Password must be more than 8 characters.</p>
+        </div>`
         return c.SendString(retval)
     }
 
@@ -89,7 +110,7 @@ func (cl *cutlink) SignupUser(c *fiber.Ctx) error {
     err = cl.Conn.CreateUser(userID.String(), password)
     if err != nil {
         cl.ErrorLog.Println(err.Error())
-        return fiber.NewError(fiber.StatusInternalServerError, "Internal Server Error")
+        return fiber.ErrInternalServerError
     }
 
     retval := fmt.Sprintf(
@@ -99,53 +120,61 @@ func (cl *cutlink) SignupUser(c *fiber.Ctx) error {
 
     if err != nil {
         cl.ErrorLog.Println(err.Error())
-        return err
     }
 
-    return nil
+    return err
 }
 
 
 func (cl *cutlink) LoginPage(c *fiber.Ctx) error {
-    err := c.Render("login", fiber.Map{
+    sess, err := cl.Store.Get(c)
+    if err != nil {
+        return fiber.ErrInternalServerError
+    }
+
+    errMsg := sess.Get("errMsg")
+    if errMsg != nil {
+        errMsg = errMsg.(string)
+    }
+
+    err = c.Render("login", fiber.Map{
+        "errMsg": errMsg,
         "title": "Login",
     }, "layouts/main")
 
+    sess.Delete("errMsg")
+    sess.Save()
     if err != nil {
         cl.ErrorLog.Println(err.Error())
-        return err
     }
 
-    return nil
+    return err
 }
 
 
 func (cl *cutlink) LoginUser(c *fiber.Ctx) error {
+    sess, err := cl.Store.Get(c)
+    if err != nil {
+        return fiber.ErrInternalServerError
+    }
+
     password := c.FormValue("password", "")
     userID   := c.FormValue("uuid", "")
 
     if !userIdMatcher.Match([]byte(userID)) {
-        return fiber.ErrInternalServerError
+        sess.Set("errMsg", "Invalid UserID or Password.")
+        sess.Save()
+        return cl.LoginPage(c)
     }
 
     id, err := cl.Conn.AuthenticatUser(userID, password)
     if err != nil {
-        cl.ErrorLog.Println(err.Error())
-        return fiber.ErrInternalServerError
+        sess.Set("errMsg", "Invalid UserID or Password.")
+        sess.Save()
+        return cl.LoginPage(c)
     }
 
-    sess, err := cl.Store.Get(c)
-    if err != nil {
-        cl.ErrorLog.Println(err.Error())
-        return fiber.ErrInternalServerError
-    }
-
-    err = sess.Regenerate()
-    if err != nil {
-        cl.ErrorLog.Println(err.Error())
-        return fiber.ErrInternalServerError
-    }
-
+    sess.Regenerate()
     sess.Set("authenticatedUserID", id)
     err = sess.Save()
     if err != nil {
@@ -208,7 +237,7 @@ func (cl *cutlink) DeleteUser(c *fiber.Ctx) error {
 func (cl *cutlink) Redirector(c *fiber.Ctx) error {
     hash := c.Params("hash")
     if hash == "" {
-        return fiber.ErrInternalServerError
+        return cl.ErrorPage(c, "URL hash is not valid.")
     }
     target, err := cl.Conn.GetUrl(hash)
     if err != nil {
@@ -245,7 +274,7 @@ func (cl *cutlink) RedirectorPassword(c *fiber.Ctx) error {
 
     err = bcrypt.CompareHashAndPassword([]byte(target.PassHash), []byte(password))
     if err != nil {
-        return fiber.ErrInternalServerError
+        return cl.ErrorPage(c, "Invalid password.")
     }
 
     err = cl.Conn.IncrementClicked(hash)
