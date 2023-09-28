@@ -49,6 +49,7 @@ func (cl *cutlink) HomePage(c *fiber.Ctx) error {
     id, err := cl.getUserID(c)
     if err != nil {
         cl.ErrorLog.Println(err.Error())
+        return err
     }
 
     if id != 0 {
@@ -114,7 +115,10 @@ func (cl *cutlink) SignupUser(c *fiber.Ctx) error {
     }
 
     retval := fmt.Sprintf(
-        `<div class="container alert alert-success" role="alert"><h3>UUID</h3><code style="font-size: 20px">%s</code></div>`,
+        `<div class="container alert alert-success" role="alert">
+        <h3>UUID</h3>
+        <code style="font-size: 20px">%s</code>
+        </div>`,
         userID.String())
     err = c.SendString(retval)
 
