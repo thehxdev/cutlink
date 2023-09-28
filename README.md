@@ -38,10 +38,10 @@ make all
 make docker
 ```
 
-After you built the docker image, you can run the container with [Docker Compose](https://github.com/thehxdev/cutlink/tree/main/docker-compose-examples).
+After you built the docker image, you can run the container with [Docker Compose](https://github.com/thehxdev/cutlink/tree/main/docs/docker-compose-examples).
 
 > [!NOTE]
-> For examples of docker usage go to [Docker Compose Examples and Istructions](https://github.com/thehxdev/cutlink/tree/main/docker-compose-examples).
+> For examples of docker usage go to [Docker Compose Examples and Istructions](https://github.com/thehxdev/cutlink/tree/main/docs/docker-compose-examples).
 
 
 ### Build the executable with golang docker container
