@@ -3,6 +3,7 @@ package main
 import (
     "fmt"
     "regexp"
+    "strings"
     "cutlink/models"
 
     "github.com/google/uuid"
@@ -163,7 +164,7 @@ func (cl *cutlink) LoginUser(c *fiber.Ctx) error {
     }
 
     password := c.FormValue("password", "")
-    userID   := c.FormValue("uuid", "")
+    userID   := strings.TrimSpace(c.FormValue("uuid", ""))
 
     if !userIdMatcher.Match([]byte(userID)) {
         sess.Set("errMsg", "Invalid UserID or Password.")
@@ -298,11 +299,11 @@ func (cl *cutlink) AddUrl(c *fiber.Ctx) error {
     }
     id := sess.Get("authenticatedUserID")
 
-    target := c.FormValue("target", "")
+    target := strings.TrimSpace(c.FormValue("target", ""))
     if target == "" || !urlMatcher.Match([]byte(target)) {
         return fiber.ErrInternalServerError
     }
-    password := c.FormValue("password", "")
+    password := strings.TrimSpace(c.FormValue("password", ""))
 
     _, _, err = cl.Conn.CreateUrl(id.(int), target, password)
     if (err != nil) {
