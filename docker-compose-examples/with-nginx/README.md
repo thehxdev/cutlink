@@ -3,7 +3,7 @@
 Example and documentation for running Cutlink with nginx as a reverse proxy with TLS.
 
 
-## Issue SSL certificate
+## Issue SSL certificate for TLS Encryption
 
 ### Self-signed certificate
 

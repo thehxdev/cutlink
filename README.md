@@ -19,6 +19,7 @@ Link shortener services are simple. But CutLink is different in some points.
 
 ## Build
 
+
 ### Build the executable
 > [!NOTE]
 > Make sure that you already installed `gcc`, `make`, `sqlite3` and `go`.
@@ -29,7 +30,9 @@ Link shortener services are simple. But CutLink is different in some points.
 make all
 ```
 
+
 ### Build docker image (Recommended)
+
 ```bash
 # build docker image
 make docker
@@ -40,6 +43,7 @@ After you built the docker image, you can run the container with [Docker Compose
 > [!NOTE]
 > For examples of docker usage go to [Docker Compose Examples and Istructions](https://github.com/thehxdev/cutlink/tree/main/docker-compose-examples).
 
+
 ### Build the executable with golang docker container
 ```bash
 # remove .git directory
@@ -48,21 +52,6 @@ rm -rf .git/
 # This is same as make command but builds the project inside golang docker container
 # and outputs the executable to ./bin directory
 make docker_exe
-```
-
-
-## TLS Support
-
-At this time, for TLS support you have to run the executable or docker image on the localhost (`127.0.0.1`) then use a
-**reverse proxy** like [Caddy](https://caddyserver.com/) to pass all trafic from `0.0.0.0` to CutLink with TLS encryption.
-
-- To run CutLink on localhost:
-```bash
-# executable (on port 5000)
-./bin/cutlink -addr 'localhost:5000'
-
-# docker image (after you build it)
-docker run -d -p 127.0.0.1:5000:5000 cutlink:latest
 ```
 
 
