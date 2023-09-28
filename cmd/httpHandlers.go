@@ -21,21 +21,6 @@ var (
 )
 
 
-func (cl *cutlink) getUserID(c *fiber.Ctx) (int, error) {
-    sess, err := cl.Store.Get(c)
-    if err != nil {
-        return 0, err
-    }
-
-    id := sess.Get("authenticatedUserID")
-    if id == nil {
-        return 0, nil
-    }
-
-    return id.(int), nil
-}
-
-
 func (cl *cutlink) ErrorPage(c *fiber.Ctx, errMsg string) error {
     return c.Render("error", fiber.Map{
         "title": "Error",
@@ -47,29 +32,42 @@ func (cl *cutlink) ErrorPage(c *fiber.Ctx, errMsg string) error {
 func (cl *cutlink) HomePage(c *fiber.Ctx) error {
     var urls []*models.Url
 
-    id, err := cl.getUserID(c)
+    sess, err := cl.Store.Get(c)
     if err != nil {
         cl.ErrorLog.Println(err.Error())
         return err
     }
 
+    id := sess.Get("authenticatedUserID")
+    if id == nil {
+        id = 0
+    }
+
     if id != 0 {
-        urls, err = cl.Conn.GetAllUrls(id)
+        urls, err = cl.Conn.GetAllUrls(id.(int))
         if err != nil {
             cl.ErrorLog.Println(err.Error())
             return fiber.ErrInternalServerError
         }
     }
 
+    errMsg := sess.Get("errMsg")
+    if errMsg != nil {
+        errMsg = errMsg.(string)
+    }
+
     err = c.Render("index", fiber.Map{
         "title": "Home",
         "Urls": urls,
         "authenticated": id,
+        "errMsg": errMsg,
     }, "layouts/main")
 
     if err != nil {
         cl.ErrorLog.Println(err.Error())
     }
+    sess.Delete("errMsg")
+    sess.Save()
 
     return err
 }
@@ -301,7 +299,10 @@ func (cl *cutlink) AddUrl(c *fiber.Ctx) error {
 
     target := strings.TrimSpace(c.FormValue("target", ""))
     if target == "" || !urlMatcher.Match([]byte(target)) {
-        return fiber.ErrInternalServerError
+        sess.Set("errMsg", "Target URL is not valid.")
+        sess.Save()
+        return cl.HomePage(c)
+        // return fiber.ErrInternalServerError
     }
     password := strings.TrimSpace(c.FormValue("password", ""))
 

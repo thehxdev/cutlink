@@ -1,4 +1,10 @@
 {{if .authenticated}}
+{{if .errMsg}}
+<div class="container alert alert-danger">
+    <h2>Error</h2>
+    <p style="font-size: 20px">{{.errMsg}}</p>
+</div>
+{{end}}
 <h2>Add new URL</h2>
 <form method="POST" action="/add">
     <div>
