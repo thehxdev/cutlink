@@ -19,26 +19,28 @@ Link shortener services are simple. But CutLink is different in some points.
 
 ## Build
 
+### Build the executable
 > [!NOTE]
 > Make sure that you already installed `gcc`, `make`, `sqlite3` and `go`.
 
-- Build the executable:
 ```bash
 # This command will build the project and sqlite database
 # and outputs the executable to ./bin directory.
 make all
 ```
 
-- Build docker image:
+### Build docker image (Recommended)
 ```bash
 # build docker image
 make docker
-
-# run docker image (port 5000)
-docker run -d -p 5000:5000 cutlink:latest
 ```
 
-- Build the executable with golang docker container:
+After you built the docker image, you can run the container with [Docker Compose](https://github.com/thehxdev/cutlink/tree/main/docker-compose-examples).
+
+> [!NOTE]
+> For examples of docker usage go to [Docker Compose Examples and Istructions](https://github.com/thehxdev/cutlink/tree/main/docker-compose-examples).
+
+### Build the executable with golang docker container
 ```bash
 # remove .git directory
 rm -rf .git/
@@ -69,9 +71,8 @@ docker run -d -p 127.0.0.1:5000:5000 cutlink:latest
 Since this is my first web development project after one year of Python and C programming, some bad practices or bad coding style
 is expected. I try to learn more and make this project better.
 
-- Create docker-compose file for better experience with docker.
 - Better error handling on client-side errors (All of them handled with `Internal Server Error`).
-- Better (but VERY simple) UI (First time building front-ends).
+- Better (but simple) UI.
 - Check for security vulnerabilities (Sessions and CSRF are already present).
 - Better form information checking.
 
