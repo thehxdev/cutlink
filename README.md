@@ -60,9 +60,7 @@ make docker_exe
 Since this is my first web development project after one year of Python and C programming, some bad practices or bad coding style
 is expected. I try to learn more and make this project better.
 
-- Better error handling on client-side errors (All of them handled with `Internal Server Error`).
-- Better (but simple) UI.
-- Check for security vulnerabilities (Sessions and CSRF are already present).
+- Check for security vulnerabilities (Sessions and CSRF protection are already present).
 - Better form information checking.
 
 
