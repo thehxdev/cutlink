@@ -29,9 +29,10 @@ type cutlink struct {
 
 
 func main() {
-    addr     := flag.String("addr", ":5000", "Listening Address")
-    dbFile   := flag.String("db", "./database.db", "Path to database file")
-    noSignUp := flag.Bool("disable-signup", false, "Disable user signup")
+    addr       := flag.String("addr", ":5000", "Listening Address")
+    dbFile     := flag.String("db", "./database.db", "Path to main database file")
+    sessDBfile := flag.String("sess-db", "./session.db", "Path to sessions database file")
+    noSignUp   := flag.Bool("disable-signup", false, "Disable user signup")
     flag.Parse()
 
 
@@ -58,7 +59,7 @@ func main() {
             CookieHTTPOnly: true,
             CookieSecure: true,
             Storage: fiberSQLstore.New(fiberSQLstore.Config{
-                Database: "./sessions.db",
+                Database: *sessDBfile,
                 GCInterval: 30 * time.Second,
             }),
         }),

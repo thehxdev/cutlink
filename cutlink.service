@@ -5,9 +5,9 @@ After=network.target nss-lookup.target
 [Service]
 Type=simple
 User=root
-ExecStart=/usr/local/bin/cutlink -addr '...' -db '...'
-Restart=on-failure
+ExecStartPre=mkdir -p /usr/local/share/cutlink
+ExecStart=/usr/local/bin/cutlink -addr ':5000' -db '/usr/local/share/cutlink/cutlink.db' -sess-db '/usr/local/share/cutlink/cutlink-sessions.db'
+Restart=always
 
 [Install]
 WantedBy=multi-user.target
-
