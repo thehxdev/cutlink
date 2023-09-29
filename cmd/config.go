@@ -33,7 +33,6 @@ func setupViper(cfg *Config) {
     viper.SetConfigType("toml")
 
     viper.AddConfigPath("/etc/cutlink/")
-    viper.AddConfigPath("$HOME/.config/cutlink/")
     viper.AddConfigPath(".")
 
     err := viper.ReadInConfig()

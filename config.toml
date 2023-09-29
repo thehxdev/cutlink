@@ -3,9 +3,10 @@ port = 5000
 addr = "0.0.0.0"
 
 [database]
+# path for sqlite databases
 mainDB = "./database.db"
 sessionsDB = "./sessions.db"
 
 [management]
-noSignup = false # disable user signup
-rateLimitMax = 20
+noSignup = false  # disables user signup if true
+rateLimitMax = 20 # Maximum of 20 requests in 30 seconds
