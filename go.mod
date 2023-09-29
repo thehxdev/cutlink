@@ -4,11 +4,11 @@ go 1.21.1
 
 require (
 	github.com/gofiber/fiber/v2 v2.49.2
-	github.com/gofiber/helmet/v2 v2.2.26
 	github.com/gofiber/storage/sqlite3/v2 v2.0.0
 	github.com/gofiber/template/html/v2 v2.0.5
 	github.com/google/uuid v1.3.1
 	github.com/mattn/go-sqlite3 v1.14.17
+	github.com/spf13/viper v1.16.0
 	golang.org/x/crypto v0.13.0
 )
 
@@ -31,7 +31,6 @@ require (
 	github.com/spf13/cast v1.5.1 // indirect
 	github.com/spf13/jwalterweatherman v1.1.0 // indirect
 	github.com/spf13/pflag v1.0.5 // indirect
-	github.com/spf13/viper v1.16.0 // indirect
 	github.com/subosito/gotenv v1.4.2 // indirect
 	github.com/tinylib/msgp v1.1.8 // indirect
 	github.com/valyala/bytebufferpool v1.0.0 // indirect
