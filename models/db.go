@@ -8,6 +8,25 @@ import (
 )
 
 
+const DBschema = `
+CREATE TABLE users (
+    id INTEGER PRIMARY KEY,
+    uuid VARCHAR(36) NOT NULL UNIQUE,
+    pass_hash VARCHAR(60) NOT NULL UNIQUE
+);
+
+CREATE TABLE urls (
+    id INTEGER PRIMARY KEY,
+    target VARCHAR(256) NOT NULL,
+    hash VARCHAR(10) UNIQUE NOT NULL,
+    pass_hash VARCHAR(60),
+    clicked INTEGER DEFAULT 0,
+    created TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    user_id INT NOT NULL,
+    FOREIGN KEY (user_id) REFERENCES users(id)
+);`
+
+
 type Url struct {
     ID          int
     Target      string
@@ -28,6 +47,12 @@ type User struct {
 
 type Conn struct {
     DB *sql.DB
+}
+
+
+func (c *Conn) MigrateDB() error {
+    _, err := c.DB.Exec(DBschema)
+    return err
 }
 
 

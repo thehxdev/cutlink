@@ -25,6 +25,7 @@ func (cl *cutlink) setupRoutes() {
     authRoute.Post("/logout", cl.LogoutUser)
     authRoute.Post("/delete", cl.DeleteUser)
 
+    // adminRoute := cl.App.Group("/admin")
 }
 
 
@@ -34,7 +35,7 @@ func (cl *cutlink) setupMiddlewares() {
         Next: func (c *fiber.Ctx) bool {
             return (c.IP() == "127.0.0.1" && (strings.HasPrefix(c.Path(), "/r") || strings.HasPrefix(c.Path(), "/delete")))
         },
-        Max: 20,
+        Max: cl.Cfg.Management.RateLimitMax,
         Expiration: 30 * time.Second,
         LimitReached: func (c *fiber.Ctx) error {
             return c.Render("rateLimit", fiber.Map{

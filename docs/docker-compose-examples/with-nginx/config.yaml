@@ -1,0 +1,11 @@
+server:
+  port: 5000
+  addr: "0.0.0.0"
+
+database:
+  mainDB: "./database.db"
+  sessionsDB: "./sessions.db"
+
+management:
+  noSignup: false # disable user signup
+  rateLimitMax: 20

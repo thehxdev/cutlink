@@ -4,13 +4,13 @@ import (
     "os"
     "log"
     "fmt"
-    "flag"
     "time"
     "database/sql"
     "cutlink/models"
 
     _ "github.com/mattn/go-sqlite3"
 
+    "github.com/spf13/viper"
     "github.com/gofiber/fiber/v2"
     "github.com/gofiber/template/html/v2"
     "github.com/gofiber/fiber/v2/middleware/session"
@@ -19,29 +19,32 @@ import (
 
 
 type cutlink struct {
-    App             *fiber.App
-    Conn            *models.Conn
-    ErrorLog        *log.Logger
-    InfoLog         *log.Logger
-    Store           *session.Store
-    DisableSignup   bool
+    App         *fiber.App
+    Conn        *models.Conn
+    ErrorLog    *log.Logger
+    InfoLog     *log.Logger
+    Store       *session.Store
+    Cfg         *Config
 }
 
 
 func main() {
-    addr       := flag.String("addr", ":5000", "Listening Address")
-    dbFile     := flag.String("db", "./database.db", "Path to main database file")
-    sessDBfile := flag.String("sess-db", "./session.db", "Path to sessions database file")
-    noSignUp   := flag.Bool("disable-signup", false, "Disable user signup")
-    flag.Parse()
+    cfg := &Config{}
+    setupViper(cfg)
 
+    var dbIsNew bool = false
+    dbPath := viper.GetString("database.mainDB")
+    sessDB := viper.GetString("database.sessionsDB")
 
-    db, err := sql.Open("sqlite3", fmt.Sprintf("%s?parseTime=true", *dbFile))
+    if _, err := os.Stat(dbPath); err != nil {
+        dbIsNew = true
+    }
+
+    db, err := sql.Open("sqlite3", fmt.Sprintf("%s?parseTime=true", dbPath))
     if err != nil {
         log.Fatal(err)
     }
     defer db.Close()
-
 
     cl := &cutlink{
         App: fiber.New(fiber.Config{
@@ -59,12 +62,19 @@ func main() {
             CookieHTTPOnly: true,
             CookieSecure: true,
             Storage: fiberSQLstore.New(fiberSQLstore.Config{
-                Database: *sessDBfile,
+                Database: sessDB,
                 GCInterval: 30 * time.Second,
             }),
         }),
 
-        DisableSignup: *noSignUp,
+        Cfg: cfg,
+    }
+
+    if dbIsNew {
+        err = cl.Conn.MigrateDB()
+        if err != nil {
+            cl.ErrorLog.Fatal("Cannot create database tables")
+        }
     }
 
     // setup static file server first
@@ -76,7 +86,8 @@ func main() {
     cl.setupMiddlewares()
     cl.setupRoutes()
 
-    cl.InfoLog.Println("Server listening on", *addr)
-    err = cl.App.Listen(*addr)
+    fullAddr := fmt.Sprintf("%s:%d", cl.Cfg.Server.Addr, cl.Cfg.Server.Port)
+    cl.InfoLog.Println("Server listening on", fullAddr)
+    err = cl.App.Listen(fullAddr)
     cl.ErrorLog.Println(err)
 }

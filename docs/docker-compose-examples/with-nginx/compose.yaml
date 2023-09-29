@@ -6,6 +6,8 @@ services:
     container_name: dockerCutlink1
     ports:
       - 127.0.0.1:5000:5000
+    volumes:
+      - $PWD/config.yaml:/etc/cutlink/config.yaml
 
   nginx:
     image: nginx

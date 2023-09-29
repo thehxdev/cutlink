@@ -76,7 +76,7 @@ func (cl *cutlink) HomePage(c *fiber.Ctx) error {
 func (cl *cutlink) SignupPage(c *fiber.Ctx) error {
     err := c.Render("signup", fiber.Map{
         "title": "Signup",
-        "disabled": cl.DisableSignup,
+        "disabled": cl.Cfg.Management.NoSignup,
     }, "layouts/main")
 
     if err != nil {
@@ -88,7 +88,7 @@ func (cl *cutlink) SignupPage(c *fiber.Ctx) error {
 
 
 func (cl *cutlink) SignupUser(c *fiber.Ctx) error {
-    if cl.DisableSignup {
+    if cl.Cfg.Management.NoSignup {
         return c.SendString("Signup is disabled.")
     }
 
