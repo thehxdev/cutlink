@@ -38,10 +38,16 @@ make all
 make docker
 ```
 
-After you built the docker image, you can run the container with [Docker Compose](https://github.com/thehxdev/cutlink/tree/main/docs/docker-compose-examples).
+After you built the docker image, you can run the image with [Docker Compose](https://github.com/thehxdev/cutlink/tree/main/docs/docker-compose-examples).
 
 > [!NOTE]
 > For examples of docker usage go to [Docker Compose Examples and Istructions](https://github.com/thehxdev/cutlink/tree/main/docs/docker-compose-examples).
+
+
+If you want to run the image with `docker` command directly without a reverse proxy and TLS support:
+```bash
+docker run -d --name cutlink -v "$PWD"/config.yaml:/etc/cutlink/config.yaml -p 5000:5000 cutlink:latest
+```
 
 
 ### Build the executable with golang docker container
