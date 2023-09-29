@@ -1,5 +1,6 @@
 .git/
 bin/
 ssl/
+docs/
 *.db
 config.yaml
