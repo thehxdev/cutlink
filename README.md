@@ -46,7 +46,7 @@ After you built the docker image, you can run the image with [Docker Compose](ht
 
 If you want to run the image with `docker` command directly without a reverse proxy and TLS support:
 ```bash
-docker run -d --name cutlink -v "$PWD"/config.yaml:/etc/cutlink/config.yaml -p 5000:5000 cutlink:latest
+docker run -d --name cutlink -v "$PWD"/config.toml:/etc/cutlink/config.toml -p 5000:5000 cutlink:latest
 ```
 
 

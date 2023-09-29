@@ -3,4 +3,4 @@ bin/
 ssl/
 docs/
 *.db
-config.yaml
+config.toml

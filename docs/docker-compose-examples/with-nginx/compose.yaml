@@ -7,7 +7,7 @@ services:
     ports:
       - 127.0.0.1:5000:5000
     volumes:
-      - $PWD/config.yaml:/etc/cutlink/config.yaml
+      - $PWD/config.toml:/etc/cutlink/config.toml
 
   nginx:
     image: nginx

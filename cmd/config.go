@@ -30,7 +30,7 @@ type Config struct {
 
 func setupViper(cfg *Config) {
     viper.SetConfigName("config")
-    viper.SetConfigType("yaml")
+    viper.SetConfigType("toml")
 
     viper.AddConfigPath("/etc/cutlink/")
     viper.AddConfigPath("$HOME/.config/cutlink/")
