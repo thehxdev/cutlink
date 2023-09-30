@@ -73,7 +73,8 @@ func main() {
     if dbIsNew {
         err = cl.Conn.MigrateDB()
         if err != nil {
-            cl.ErrorLog.Fatal("Cannot create database tables")
+            cl.ErrorLog.Println("Cannot create database tables")
+            return
         }
     }
 
