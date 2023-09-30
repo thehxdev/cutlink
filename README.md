@@ -49,8 +49,7 @@ docker run -d --name cutlink -v "$PWD"/config.toml:/etc/cutlink/config.toml -p 5
 > Make sure that you already installed `gcc`, `make`, `sqlite3` and `go`.
 
 ```bash
-# This command will build the project and sqlite database
-# and outputs the executable to ./bin directory.
+# This command will build the project and outputs the executable to ./bin directory.
 make
 ```
 
