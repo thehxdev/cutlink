@@ -41,7 +41,7 @@ docker run -d --name cutlink -v "$PWD"/config.toml:/etc/cutlink/config.toml -p 5
 ```
 
 > [!NOTE]
-> For examples of docker compose usage, go to [Docker Compose Examples and Istructions](https://github.com/thehxdev/cutlink/tree/main/docs/docker-compose-examples).
+> For examples of docker compose usage, go to [Docker Compose Examples and Instructions](https://github.com/thehxdev/cutlink/tree/main/docs/docker-compose-examples).
 
 
 ### Build the executable
