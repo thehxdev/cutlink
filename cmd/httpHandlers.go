@@ -301,8 +301,7 @@ func (cl *cutlink) AddUrl(c *fiber.Ctx) error {
     if target == "" || !urlMatcher.Match([]byte(target)) {
         sess.Set("errMsg", "Target is not a valid internet URL.")
         sess.Save()
-        return cl.HomePage(c)
-        // return fiber.ErrInternalServerError
+        return c.Redirect("/", fiber.StatusSeeOther)
     }
     password := strings.TrimSpace(c.FormValue("password", ""))
 
