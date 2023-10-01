@@ -12,7 +12,7 @@ CREATE TABLE users (
 
 CREATE TABLE urls (
     id INTEGER PRIMARY KEY,
-    target VARCHAR(256) NOT NULL,
+    target VARCHAR(1024) NOT NULL,
     hash VARCHAR(10) UNIQUE NOT NULL,
     pass_hash VARCHAR(60),
     clicked INTEGER DEFAULT 0,

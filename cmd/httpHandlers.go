@@ -338,6 +338,10 @@ func (cl *cutlink) AddUrl(c *fiber.Ctx) error {
         sess.Set("errMsg", "Target is not a valid internet URL.")
         sess.Save()
         return c.Redirect("/", fiber.StatusSeeOther)
+    } else if len(target) > 1024 {
+        sess.Set("errMsg", "Target URL must be less than 1024 characters.")
+        sess.Save()
+        return c.Redirect("/", fiber.StatusSeeOther)
     }
     password := strings.TrimSpace(c.FormValue("password", ""))
 
