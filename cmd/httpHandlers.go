@@ -94,9 +94,9 @@ func (cl *cutlink) SignupUser(c *fiber.Ctx) error {
 
     password := c.FormValue("password", "")
     if password == "" || len(password) <= 8 {
-        retval := `<div class="container alert alert-danger" role="alert">
-        <h4>Password is not valid.</h4>
-        <p style="font-size: 20px;">Password must be more than 8 characters.</p>
+        retval := `<div class="alert alert-danger" role="alert">
+        <h2>Password is not valid.</h2>
+        <p class="fs-4">Password must be more than 8 characters.</p>
         </div>`
         return c.SendString(retval)
     }
@@ -167,14 +167,16 @@ func (cl *cutlink) LoginUser(c *fiber.Ctx) error {
     if !userIdMatcher.Match([]byte(userID)) {
         sess.Set("errMsg", "Invalid UserID or Password.")
         sess.Save()
-        return cl.LoginPage(c)
+        return c.Redirect("/auth/login", fiber.StatusSeeOther)
+        // return cl.LoginPage(c)
     }
 
     id, err := cl.Conn.AuthenticatUser(userID, password)
     if err != nil {
         sess.Set("errMsg", "Invalid UserID or Password.")
         sess.Save()
-        return cl.LoginPage(c)
+        return c.Redirect("/auth/login", fiber.StatusSeeOther)
+        // return cl.LoginPage(c)
     }
 
     sess.Regenerate()

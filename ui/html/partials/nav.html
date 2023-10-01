@@ -1,33 +1,42 @@
-<nav>
-    <div class="container">
-        <header class="d-flex flex-wrap align-items-center justify-content-center justify-content-md-between py-3 mb-4 border-bottom">
-            <div>
-                <a class="d-inline-flex link-body-emphasis text-decoration-none logo" href="/">CutLink!</a>
+<div class="container p-5">
+    <nav class="navbar navbar-expand-md bg-body-tertiary fixed-top border-bottom lh-1">
+        <div class="container-fluid">
+            <a class="navbar-brand logo" href="/">CutLink!</a>
+
+            <div class="justify-content-end">
+                <button class="navbar-toggler mb-3" type="button" data-bs-toggle="collapse" data-bs-target="#navbarItems" aria-controls="navbarTogglerDemo02" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <ul id="navbarItems" class="navbar-nav collapse navbar-collapse me-auto mb-2 mb-md-0">
+                    {{if .authenticated}}
+                    <li class="nav-item mb-2">
+                        <form method="POST" action="/auth/logout">
+                            <button class="btn btn-primary mx-1 px-3" type="submit">Logout</button>
+                        </form>
+                    </li>
+                    <li class="nav-item mb-2">
+                        <form method="POST" action="/auth/delete">
+                            <button class="btn btn-danger mx-1 px-3" type="submit">Delete Account</button>
+                        </form>
+                    </li>
+                    {{else}}
+                    <li class="nav-item mb-2">
+                        <form method="GET" action="/auth/signup">
+                            <button class="btn btn-primary mx-1 px-3" type="submit">Signup</button>
+                        </form>
+                    </li>
+                    <li class="nav-item mb-2">
+                        <form method="GET" action="/auth/login">
+                            <button class="btn btn-outline-primary mx-1 px-3" type="submit">Login</button>
+                        </form>
+                    </li>
+                    {{end}}
+
+                    <li class="nav-item mb-2">
+                        <a href="https://github.com/thehxdev/cutlink" target="_blank" rel="noopener noreferrer" class="nav-link" aria-current="page">Github</a>
+                    </li>
+                </ul>
             </div>
-            <ul class="nav col-12 col-md-auto mb-2 justify-content-center mb-md-0 nav-pills">
-                {{if .authenticated}}
-                <li class="nav-item">
-                    <form method="POST" action="/auth/logout">
-                        <button class="btn btn-primary mx-1 px-3" type="submit">Logout</button>
-                    </form>
-                </li>
-                <li class="nav-item">
-                    <form method="POST" action="/auth/delete">
-                        <button class="btn btn-danger mx-1 px-3" type="submit">Delete Account</button>
-                    </form>
-                </li>
-                {{else}}
-                <li class="nav-item">
-                    <a href="/auth/signup" class="nav-link active" aria-current="page">Signup</a>
-                </li>
-                <li class="nav-item">
-                    <a href="/auth/login" class="nav-link" aria-current="page">Login</a>
-                </li>
-                {{end}}
-                <li class="nav-item">
-                    <a href="https://github.com/thehxdev/cutlink" target="_blank" rel="noopener noreferrer" class="nav-link" aria-current="page">Github</a>
-                </li>
-            </ul>
-        </header>
-    </div>
-</nav>
+        </div>
+    </nav>
+</div>

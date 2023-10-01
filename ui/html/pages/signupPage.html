@@ -3,16 +3,19 @@
     <h2 class="alert-info">Signup is Disabled</h2>
 </div>
 {{else}}
-<div id="signup-form">
-    <div class="container alert alert-warning w-75">
+<div id="signup-form" class="container text-center align-items-center bg-dark-subtle rounded p-3 w-75">
+    <div class="container alert alert-warning">
         <h2 class="alert-heading">Warning!</h2>
         <p class="fs-5">Your username will be generated on the server. Don't forget to save your login info. They are <strong>NOT</strong> recoverable.</p>
+        <p class="fs-5">Password must be more than 8 characters.</p>
     </div>
 
-    <!-- <form method="POST" action="/auth/signup" class="mb-3"> -->
-    <form hx-post="/auth/signup" hx-target="#signup-form" hx-swap="outerHTML" class="mb-3">
-        <input name="password" type="password" class="form-inline rounded-pill py-2 px-2 mx-1 col" placeholder="Password" required>
-        <button type="submit" class="btn btn-primary rounded-pill">Sign up</button>
+    <form hx-post="/auth/signup" hx-target="#signup-form" hx-swap="outerHTML">
+        <div class="form-floating mb-3">
+            <input id="floatingPassword" name="password" type="password" class="form-control rounded" required>
+            <label for="floatingPassword">Password</label>
+        </div>
+        <button type="submit" class="btn btn-primary rounded">Sign up</button>
     </form>
 </div>
 {{end}}

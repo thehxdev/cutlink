@@ -1,20 +1,26 @@
-<div class="container">
+<div>
 {{if .authenticated}}
-    <div class="container my-3 bg-dark-subtle rounded p-4 w-75">
+    <div class="container bg-dark-subtle rounded p-3 my-3 w-75">
+        <h2 class="my-2">Add new URL</h2>
+
         {{if .errMsg}}
-        <div class="container alert alert-danger text-center align-items-center w-75">
+        <div class="container alert alert-danger text-center align-items-center">
             <p class="fs-4">{{.errMsg}}</p>
         </div>
         {{end}}
-        <h2 class="my-1">Add new URL</h2>
-        <form method="POST" action="/add">
-            <div class="container text-center align-items-center my-3">
-                <div class="row justify-content-md-center">
-                    <input class="col form-inline rounded-pill py-2 px-3 mx-1" type="text" name="target" placeholder="https://go.dev" required/>
-                    <input class="col col-md-auto form-inline rounded-pill py-2 px-3 mx-1" type="password" name="password" placeholder="Password (optional)"/>
-                    <button class="col col-md-auto btn btn-primary rounded-pill px-3 mx-1" type="submit">Submit</button>
-                </div>
+
+        <form method="POST" action="/add" class="container">
+            <div class="col form-floating mb-3">
+                <input class="col form-control rounded" type="text" name="target" required/>
+                <label for="floatingInput">URL</label>
             </div>
+
+            <div class="col form-floating mb-3">
+                <input class="col col-md-auto form-control rounded" type="password" name="password"/>
+                <label for="floatingInput">Password (optional)</label>
+            </div>
+
+            <button class="col col-md-auto btn btn-primary rounded" type="submit">Submit</button>
         </form>
     </div>
 
@@ -24,6 +30,6 @@
     </div>
 {{else}}
     <h2>CutLink!</h2>
-    <h4>A privacy and anonymity focused URL shortener</h4>
+    <p class="fs-4">A privacy and anonymity focused URL shortener</p>
 {{end}}
 </div>

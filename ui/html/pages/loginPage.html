@@ -1,13 +1,24 @@
-<div id="login-form">
-    {{if .errMsg}}
-    <div class="container alert alert-danger">
-        <h2>Error</h2>
-        <p style="font-size: 20px">{{.errMsg}}</p>
-    </div>
-    {{end}}
-    <form method="POST" action="/auth/login" class="mb-3 mx-1">
-        <input name="uuid" type="text" class="form-inline rounded-pill px-2 py-2 mx-1 col" placeholder="User ID" required>
-        <input name="password" type="password" class="form-inline rounded-pill px-2 py-2 mx-1 col" placeholder="Password" required>
-        <button type="submit" class="btn btn-primary rounded-pill mx-1">Login</button>
+<div class="container text-center align-items-center bg-dark-subtle rounded p-3 w-75">
+    <h2 class="mb-3">Login</h2>
+    <form method="POST" action="/auth/login" class="container">
+        {{if .errMsg}}
+        <div class="alert alert-danger">
+            <p class="fs-4">{{.errMsg}}</p>
+        </div>
+        {{end}}
+
+        <div class="col form-floating mb-3">
+            <input id="floatingUserID" name="uuid" type="text" class="form-control rounded" required>
+            <label for="floatingUserID">User ID</label>
+        </div>
+
+        <div class="col form-floating mb-3">
+            <input id="floatingPassword" name="password" type="password" class="form-control rounded" required>
+            <label for="floatingPassword">Password</label>
+        </div>
+
+        <div class="m-3" id="login-btn">
+            <button type="submit" class="btn btn-primary rounded">Login</button>
+        </div>
     </form>
 </div>
