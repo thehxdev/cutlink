@@ -1,7 +1,7 @@
 package main
 
 import (
-    "fmt"
+    // "fmt"
     "regexp"
     "strings"
     "cutlink/models"
@@ -74,11 +74,35 @@ func (cl *cutlink) HomePage(c *fiber.Ctx) error {
 
 
 func (cl *cutlink) SignupPage(c *fiber.Ctx) error {
-    err := c.Render("signup", fiber.Map{
+    sess, err := cl.Store.Get(c)
+    if err != nil {
+        cl.ErrorLog.Println(err.Error())
+        return fiber.ErrInternalServerError
+    }
+
+    if !sess.Fresh() {
+        err = sess.Regenerate()
+        if err != nil {
+            cl.ErrorLog.Println(err.Error())
+            return fiber.ErrInternalServerError
+        }
+    }
+
+    errMsg := sess.Get("errMsg")
+    if errMsg != nil {
+        errMsg = errMsg.(string)
+    }
+
+    err = c.Render("signup", fiber.Map{
         "title": "Signup",
+        "errMsg": errMsg,
         "disabled": cl.Cfg.Management.NoSignup,
     }, "layouts/main")
 
+    if errMsg != nil {
+        sess.Delete("errMsg")
+    }
+     
     if err != nil {
         cl.ErrorLog.Println(err.Error())
     }
@@ -92,13 +116,23 @@ func (cl *cutlink) SignupUser(c *fiber.Ctx) error {
         return c.SendString("Signup is disabled.")
     }
 
+    sess, err := cl.Store.Get(c)
+    if err != nil {
+        cl.ErrorLog.Println(err.Error())
+        return fiber.ErrInternalServerError
+    }
+
+    err = sess.Regenerate()
+    if err != nil {
+        cl.ErrorLog.Println(err.Error())
+        return fiber.ErrInternalServerError
+    }
+
     password := c.FormValue("password", "")
     if password == "" || len(password) <= 8 {
-        retval := `<div class="alert alert-danger" role="alert">
-        <h2>Password is not valid.</h2>
-        <p class="fs-4">Password must be more than 8 characters.</p>
-        </div>`
-        return c.SendString(retval)
+        sess.Set("errMsg", "Password must be more than 8 characters.")
+        sess.Save()
+        return c.Redirect("/auth/signup", fiber.StatusSeeOther)
     }
 
     userID, err := uuid.NewRandom()
@@ -113,19 +147,14 @@ func (cl *cutlink) SignupUser(c *fiber.Ctx) error {
         return fiber.ErrInternalServerError
     }
 
-    retval := fmt.Sprintf(
-        `<div class="container alert alert-success" role="alert">
-        <h3>UUID</h3>
-        <code style="font-size: 20px">%s</code>
-        </div>`,
-        userID.String())
-    err = c.SendString(retval)
-
+    sess.Set("userid", userID.String())
+    err = sess.Save()
     if err != nil {
         cl.ErrorLog.Println(err.Error())
+        return fiber.ErrInternalServerError
     }
 
-    return err
+    return c.Redirect("/auth/login", fiber.StatusSeeOther)
 }
 
 
@@ -140,12 +169,19 @@ func (cl *cutlink) LoginPage(c *fiber.Ctx) error {
         errMsg = errMsg.(string)
     }
 
+    userID := sess.Get("userid")
+    if userID != nil {
+        userID = userID.(string)
+    }
+
     err = c.Render("login", fiber.Map{
         "errMsg": errMsg,
+        "userid": userID,
         "title": "Login",
     }, "layouts/main")
 
     sess.Delete("errMsg")
+    sess.Delete("userid")
     sess.Save()
     if err != nil {
         cl.ErrorLog.Println(err.Error())
@@ -168,7 +204,6 @@ func (cl *cutlink) LoginUser(c *fiber.Ctx) error {
         sess.Set("errMsg", "Invalid UserID or Password.")
         sess.Save()
         return c.Redirect("/auth/login", fiber.StatusSeeOther)
-        // return cl.LoginPage(c)
     }
 
     id, err := cl.Conn.AuthenticatUser(userID, password)
@@ -176,7 +211,6 @@ func (cl *cutlink) LoginUser(c *fiber.Ctx) error {
         sess.Set("errMsg", "Invalid UserID or Password.")
         sess.Save()
         return c.Redirect("/auth/login", fiber.StatusSeeOther)
-        // return cl.LoginPage(c)
     }
 
     sess.Regenerate()

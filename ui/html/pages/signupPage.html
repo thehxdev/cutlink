@@ -4,13 +4,19 @@
 </div>
 {{else}}
 <div id="signup-form" class="container text-center align-items-center bg-dark-subtle rounded p-3 w-75">
-    <div class="container alert alert-warning">
+    <div class="alert alert-warning">
         <h2 class="alert-heading">Warning!</h2>
         <p class="fs-5">Your username will be generated on the server. Don't forget to save your login info. They are <strong>NOT</strong> recoverable.</p>
         <p class="fs-5">Password must be more than 8 characters.</p>
     </div>
 
-    <form hx-post="/auth/signup" hx-target="#signup-form" hx-swap="outerHTML">
+    {{if .errMsg}}
+    <div class="alert alert-danger">
+        <p class="fs-5">{{.errMsg}}</p>
+    </div>
+    {{end}}
+
+    <form method="POST" action="/auth/signup">
         <div class="form-floating mb-3">
             <input id="floatingPassword" name="password" type="password" class="form-control rounded" required>
             <label for="floatingPassword">Password</label>

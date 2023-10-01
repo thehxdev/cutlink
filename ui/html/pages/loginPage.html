@@ -7,6 +7,13 @@
         </div>
         {{end}}
 
+
+        {{if .userid}}
+        <div class="alert alert-success">
+            <p class="fs-4">User ID: <code>{{.userid}}</code></p>
+        </div>
+        {{end}}
+
         <div class="col form-floating mb-3">
             <input id="floatingUserID" name="uuid" type="text" class="form-control rounded" required>
             <label for="floatingUserID">User ID</label>
