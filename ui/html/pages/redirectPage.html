@@ -3,13 +3,14 @@
         <h3 class="alert-heading">This URL is protected.</h3>
     </div>
 
-    <form method="POST" action="/r/{{.hash}}" class="mb-3">
+    <form method="POST" class="mb-3">
         <div class="col form-floating mb-3">
             <input name="password" type="password" class="form-control rounded" placeholder="Password" required>
             <label for="floatingPassword">Password</label>
         </div>
         <div class="m-3">
-            <button type="submit" class="btn btn-primary rounded">Submit</button>
+            <button formaction="/r/{{.hash}}" type="submit" class="btn btn-primary rounded">Safe</button>
+            <button formaction="/r/{{.hash}}?direct=true" type="submit" class="btn btn-primary rounded">Direct</button>
         </div>
     </form>
 </div>

@@ -292,6 +292,15 @@ func (cl *cutlink) Redirector(c *fiber.Ctx) error {
         cl.ErrorLog.Println("Incrementing for", target.Hash, "Failed")
     }
 
+    direct := c.QueryBool("direct", false)
+    if !direct {
+        return c.Render("safe", fiber.Map{
+            "title": "Safe Mode",
+            "target": target.Target,
+        }, "layouts/main")
+    }
+
+
     return c.Redirect(target.Target, fiber.StatusSeeOther)
 }
 
@@ -317,6 +326,15 @@ func (cl *cutlink) RedirectorPassword(c *fiber.Ctx) error {
     if err != nil {
         cl.ErrorLog.Println("Incrementing for", target.Hash, "Failed")
     }
+
+    direct := c.QueryBool("direct", false)
+    if !direct {
+        return c.Render("safe", fiber.Map{
+            "title": "Safe Mode",
+            "target": target.Target,
+        }, "layouts/main")
+    }
+
 
     return c.Redirect(target.Target, fiber.StatusSeeOther)
 }

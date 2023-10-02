@@ -7,7 +7,17 @@
     {{end}}
     <td scope="row">{{.Clicked}}</td>
     <td scope="row">{{.Created}}</td>
-    <td scope="row"><a href="/r/{{.Hash}}" target="_blank" rel="noopener noreferrer">URL</a></td>
+    <td scope="row">
+        <div>
+            {{if .PassHash}}
+            <a href="/r/{{.Hash}}" target="_blank" rel="noopener noreferrer">URL</a>
+            {{else}}
+            <a href="/r/{{.Hash}}" target="_blank" rel="noopener noreferrer">Safe</a>
+            |
+            <a href="/r/{{.Hash}}?direct=true" target="_blank" rel="noopener noreferrer">Direct</a>
+            {{end}}
+        </div>
+    </td>
     <td scope="row">
         <div>
             <button class="btn btn-danger delete-button px-3 rounded-pill" hx-delete="/delete/{{.Hash}}">Delete</button>
