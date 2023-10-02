@@ -10,6 +10,7 @@ A privacy and anonymity focused link shortener written in golang.
 
 Link shortener services are simple. But Cutlink is different in some points.
 
+- Safe Mode! (See the target URL before redirect process BUT this is optional).
 - No email or personal information needed for signing up. Your username is a randomly generated UUIDv4 that will show you only **one** time after you submited your password in signup page.
 - You own your data. if you delete your account, **ALL** of your data will be deleted (Real delete :D).
 - Only server-side errors are logged (for troubleshooting).
