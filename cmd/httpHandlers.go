@@ -239,8 +239,6 @@ func (cl *cutlink) LogoutUser(c *fiber.Ctx) error {
     }
 
     sess.Destroy()
-    sess.Save()
-
     return c.Redirect("/", fiber.StatusSeeOther)
 }
 
@@ -266,7 +264,6 @@ func (cl *cutlink) DeleteUser(c *fiber.Ctx) error {
 
     if id != nil {
         sess.Destroy()
-        sess.Save()
     }
 
     return c.Redirect("/", fiber.StatusSeeOther)
