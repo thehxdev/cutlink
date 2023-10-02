@@ -9,14 +9,14 @@
         </div>
         {{end}}
 
-        <form method="POST" action="/add" class="container">
+        <form method="POST" action="/add">
             <div class="col form-floating mb-3">
-                <input class="col form-control rounded" type="text" name="target" required/>
+                <input class="col form-control rounded" type="text" name="target" placeholder="URL" required/>
                 <label for="floatingInput">URL</label>
             </div>
 
             <div class="col form-floating mb-3">
-                <input class="col col-md-auto form-control rounded" type="password" name="password"/>
+                <input class="col col-md-auto form-control rounded" type="password" placeholder="Password (optional)" name="password"/>
                 <label for="floatingInput">Password (optional)</label>
             </div>
 
