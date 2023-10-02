@@ -51,16 +51,16 @@ func (cl *cutlink) HomePage(c *fiber.Ctx) error {
         }
     }
 
-    errMsg := sess.Get("errMsg")
-    if errMsg != nil {
-        errMsg = errMsg.(string)
-    }
+    // errMsg := sess.Get("errMsg")
+    // if errMsg != nil {
+    //     errMsg = errMsg.(string)
+    // }
 
     err = c.Render("index", fiber.Map{
         "title": "Home",
         "Urls": urls,
         "authenticated": id,
-        "errMsg": errMsg,
+        // "errMsg": errMsg,
     }, "layouts/main")
 
     if err != nil {
@@ -332,23 +332,34 @@ func (cl *cutlink) AddUrl(c *fiber.Ctx) error {
 
     target := strings.TrimSpace(c.FormValue("target", ""))
     if target == "" || !urlMatcher.Match([]byte(target)) {
-        sess.Set("errMsg", "Target is not a valid internet URL.")
-        sess.Save()
-        return c.Redirect("/", fiber.StatusSeeOther)
+        c.Set("HX-Retarget", "#add-url-form")
+        c.Set("HX-Reswap", "outerHTML")
+        return c.Render("partials/addUrlForm", fiber.Map{
+            "errMsg": "Target URL is not valid.",
+        })
     } else if len(target) > 1024 {
-        sess.Set("errMsg", "Target URL must be less than 1024 characters.")
-        sess.Save()
-        return c.Redirect("/", fiber.StatusSeeOther)
+        c.Set("HX-Refresh", "true")
+        c.Set("HX-Reswap", "outerHTML")
+        return c.Render("partials/addUrlForm", fiber.Map{
+            "errMsg": "Target URL must be less than 1024 characters.",
+        })
     }
     password := strings.TrimSpace(c.FormValue("password", ""))
 
-    _, _, err = cl.Conn.CreateUrl(id.(int), target, password)
+    _, hash, err := cl.Conn.CreateUrl(id.(int), target, password)
     if (err != nil) {
         cl.ErrorLog.Println(err.Error())
         return fiber.ErrInternalServerError
     }
 
-    return c.Redirect("/", fiber.StatusSeeOther)
+    newUrl, err := cl.Conn.GetUrl(hash)
+    if (err != nil) {
+        cl.ErrorLog.Println(err.Error())
+        return fiber.ErrInternalServerError
+    }
+
+    return c.Render("partials/urlrow", newUrl)
+    // return c.Redirect("/", fiber.StatusSeeOther)
 }
 
 

@@ -1,0 +1,23 @@
+<div id="add-url-form" class="container bg-dark-subtle rounded p-3 my-3 w-75">
+    <h2 class="my-2">Add new URL</h2>
+
+    {{if .errMsg}}
+    <div class="container alert alert-danger text-center align-items-center">
+        <p class="fs-4">{{.errMsg}}</p>
+    </div>
+    {{end}}
+
+    <form hx-post="/add" hx-target="#urls-table-body" hx-swap="afterbegin">
+        <div class="col form-floating mb-3">
+            <input class="col form-control rounded" type="text" name="target" placeholder="URL" required/>
+            <label for="floatingInput">URL</label>
+        </div>
+
+        <div class="col form-floating mb-3">
+            <input class="col col-md-auto form-control rounded" type="password" placeholder="Password (optional)" name="password"/>
+            <label for="floatingInput">Password (optional)</label>
+        </div>
+
+        <button class="col col-md-auto btn btn-primary rounded" type="submit">Submit</button>
+    </form>
+</div>
