@@ -6,7 +6,7 @@ CREATE TABLE users (
     id INTEGER PRIMARY KEY,
     uuid VARCHAR(36) NOT NULL UNIQUE,
     pass_hash VARCHAR(60) NOT NULL UNIQUE
-    -- isAdmin BOOLEAN NOT NULL CHECK (isAdmin IN (0,1))
+    isAdmin BOOLEAN NOT NULL CHECK (isAdmin IN (0,1))
 );
 
 

@@ -6,7 +6,7 @@ import (
     "fmt"
     "time"
     "database/sql"
-    "cutlink/models"
+    "github.com/thehxdev/cutlink/models"
 
     _ "github.com/mattn/go-sqlite3"
 

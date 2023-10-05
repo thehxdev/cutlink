@@ -7,7 +7,6 @@ import (
     "github.com/gofiber/fiber/v2"
     "github.com/gofiber/fiber/v2/middleware/limiter"
     "github.com/gofiber/fiber/v2/middleware/csrf"
-    // "github.com/gofiber/helmet/v2"
 )
 
 func (cl *cutlink) setupRoutes() {
@@ -25,7 +24,10 @@ func (cl *cutlink) setupRoutes() {
     authRoute.Post("/logout", cl.LogoutUser)
     authRoute.Post("/delete", cl.DeleteUser)
 
-    // adminRoute := cl.App.Group("/admin")
+    adminRoute := cl.App.Group(cl.Cfg.Admin.Route)
+    adminRoute.Get("/", cl.AdminHome)
+    adminRoute.Post("/tsignup", cl.AdminToggleSignup)
+    adminRoute.Post("/sratelimit", cl.AdminSetRateLimitMax)
 }
 
 
@@ -52,6 +54,4 @@ func (cl *cutlink) setupMiddlewares() {
         CookieHTTPOnly: true,
         CookieSameSite: "Strict",
     }))
-
-    // cl.App.Use(helmet.New())
 }

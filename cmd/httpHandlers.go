@@ -1,10 +1,9 @@
 package main
 
 import (
-    // "fmt"
     "regexp"
     "strings"
-    "cutlink/models"
+    "github.com/thehxdev/cutlink/models"
 
     "github.com/google/uuid"
     "golang.org/x/crypto/bcrypt"
@@ -51,16 +50,10 @@ func (cl *cutlink) HomePage(c *fiber.Ctx) error {
         }
     }
 
-    // errMsg := sess.Get("errMsg")
-    // if errMsg != nil {
-    //     errMsg = errMsg.(string)
-    // }
-
     err = c.Render("index", fiber.Map{
         "title": "Home",
         "Urls": urls,
         "authenticated": id,
-        // "errMsg": errMsg,
     }, "layouts/main")
 
     if err != nil {
@@ -206,7 +199,7 @@ func (cl *cutlink) LoginUser(c *fiber.Ctx) error {
         return c.Redirect("/auth/login", fiber.StatusSeeOther)
     }
 
-    id, err := cl.Conn.AuthenticatUser(userID, password)
+    id, isAdmin, err := cl.Conn.AuthenticatUser(userID, password)
     if err != nil {
         sess.Set("errMsg", "Invalid UserID or Password.")
         sess.Save()
@@ -215,6 +208,13 @@ func (cl *cutlink) LoginUser(c *fiber.Ctx) error {
 
     sess.Regenerate()
     sess.Set("authenticatedUserID", id)
+
+    if isAdmin {
+        sess.Set("admin", true)
+    } else {
+        sess.Set("admin", false)
+    }
+
     err = sess.Save()
     if err != nil {
         cl.ErrorLog.Println(err.Error())
@@ -348,6 +348,10 @@ func (cl *cutlink) AddUrl(c *fiber.Ctx) error {
     }
     id := sess.Get("authenticatedUserID")
 
+    if id == nil {
+        return c.SendString("Not authenticated request.")
+    }
+
     target := strings.TrimSpace(c.FormValue("target", ""))
     if target == "" || !urlMatcher.Match([]byte(target)) {
         c.Set("HX-Retarget", "#add-url-form")
@@ -377,7 +381,6 @@ func (cl *cutlink) AddUrl(c *fiber.Ctx) error {
     }
 
     return c.Render("partials/urlrow", newUrl)
-    // return c.Redirect("/", fiber.StatusSeeOther)
 }
 
 
@@ -388,6 +391,10 @@ func (cl *cutlink) DeleteUrl(c *fiber.Ctx) error {
         return fiber.NewError(fiber.StatusInternalServerError, "Internal Server Error")
     }
     id := sess.Get("authenticatedUserID")
+
+    if id == nil {
+        return c.SendString("Not authenticated request.")
+    }
 
     hash := c.Params("hash")
     err = cl.Conn.DeleteUrl(id.(int), hash)

@@ -22,9 +22,9 @@ type Config struct {
         RateLimitMax    int
     }
 
-    // admin struct {
-    //     password string
-    // }
+    Admin struct {
+        Route string
+    }
 }
 
 

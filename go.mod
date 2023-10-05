@@ -1,4 +1,4 @@
-module cutlink
+module github.com/thehxdev/cutlink
 
 go 1.21.1
 

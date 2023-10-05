@@ -1,0 +1,25 @@
+<div class="container text-center align-items-center bg-dark-subtle rounded p-3 w-75">
+    <form method="POST" action="{{.route}}/tsignup">
+        <div>
+            {{if .noSignup}}
+            <div class="m-3">
+                <button type="submit" class="btn btn-primary rounded">Enable Signup</button>
+            </div>
+            {{else}}
+            <div class="m-3">
+                <button type="submit" class="btn btn-danger rounded">Disable Signup</button>
+            </div>
+            {{end}}
+        </div>
+    </form>
+
+    <form method="POST" action="{{.route}}/sratelimit">
+        <div class="form-floating mb-3">
+            <input id="floatingRateLimit" name="ratelimit" type="text" class="form-control rounded" placeholder="Rate Limit ({{.rateLimit}})" required>
+            <label for="floatingRateLimit">Rate Limit ({{.rateLimit}})</label>
+            <div class="m-3">
+                <button type="submit" class="btn btn-primary rounded">Submit</button>
+            </div>
+        </div>
+    </form>
+</div>
