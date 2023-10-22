@@ -3,7 +3,7 @@
 A privacy and anonymity focused link shortener written in golang.
 
 > [!NOTE]
-> This project is under active development.
+> This project is under active development. **DON'T USE IT YET.**
 
 
 ## Features
