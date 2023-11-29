@@ -1,9 +1,6 @@
 # Cutlink!
 
-A privacy and anonymity focused link shortener written in golang.
-
-> [!NOTE]
-> This project is under active development. **DON'T USE IT YET.**
+A privacy and anonymity focused link shortener written in Golang.
 
 
 ## Features
@@ -55,9 +52,9 @@ make
 ```
 
 
-### Build the executable with golang docker image
+### Build the executable with Golang docker image
 
-This will use golang docker image to compile the executable and saves the output to `./bin` directory in local environment.
+This will use Golang docker image to compile the executable and saves the output to `./bin` directory in local environment.
 Same as running `make` but inside a docker container.
 
 ```bash
