@@ -15,4 +15,4 @@ rateLimitMax = 20 # Maximum of 20 requests in 30 seconds
 # admin pages route. can be any string starts with `/`.
 # but it's better to set a randomly generated string
 # with ONLY letters and numbers.
-route = "/sX4MGykDZq"
+route = "/cl-admin"
