@@ -20,6 +20,7 @@ run: $(wildcard ./cmd/*.go) $(wildcard ./db/*.go)
 
 clean:
 	rm -rf ./bin $(SESSIONS_DB_FILE) $(MAIN_DB_FILE)
+	go clean
 
 # Build docker image
 docker: clean ./Dockerfile
