@@ -89,6 +89,13 @@ func main() {
 
     fullAddr := fmt.Sprintf("%s:%d", cl.Cfg.Server.Addr, cl.Cfg.Server.Port)
     cl.InfoLog.Println("Server listening on", fullAddr)
-    err = cl.App.Listen(fullAddr)
+
+    if (cl.Cfg.Tls.Cert != "" && cl.Cfg.Tls.Key != "") {
+        cl.InfoLog.Println("TLS encryption enabled by Cutlink")
+        err = cl.App.ListenTLS(fullAddr, cl.Cfg.Tls.Cert, cl.Cfg.Tls.Key)
+    } else {
+        err = cl.App.Listen(fullAddr)
+    }
+
     cl.ErrorLog.Println(err)
 }

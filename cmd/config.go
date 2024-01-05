@@ -23,7 +23,12 @@ type Config struct {
     }
 
     Admin struct {
-        Route string
+        Route   string
+    }
+
+    Tls struct {
+        Cert    string
+        Key     string
     }
 }
 

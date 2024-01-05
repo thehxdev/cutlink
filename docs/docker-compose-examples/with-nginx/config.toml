@@ -3,7 +3,7 @@ port = 5000
 addr = "0.0.0.0"
 
 [database]
-# path for sqlite databases
+## path for sqlite databases
 mainDB = "./database.db"
 sessionsDB = "./sessions.db"
 
@@ -12,7 +12,15 @@ noSignup = false  # disables user signup if true
 rateLimitMax = 20 # Maximum of 20 requests in 30 seconds
 
 [admin]
-# admin pages route. can be any string starts with `/`.
-# but it's better to set a randomly generated string
-# with ONLY letters and numbers.
+## admin pages route. can be any string starts with `/`.
+## but it's better to set a randomly generated string
+## with ONLY letters and numbers.
 route = "/cl-admin"
+
+## TLS support by cutlink
+## Leave commented or empty if you don't want TLS.
+## Leave commented or set to empty strings if you want
+## to use with Docker compose and Nginx.
+# [tls]
+# cert = ""  # path to fullchain or public-key file
+# key  = ""  # path to privkey or private-key file
