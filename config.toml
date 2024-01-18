@@ -8,8 +8,11 @@ mainDB = "./database.db"
 sessionsDB = "./sessions.db"
 
 [management]
-noSignup = false  # disables user signup if true
-rateLimitMax = 20 # Maximum of 20 requests in 30 seconds
+## disables user signup if true
+noSignup = false  
+## Maximum of 20 requests in 30 seconds.
+## This only affects /signup route
+rateLimitMax = 20 
 
 [admin]
 ## admin pages route. can be any string starts with `/`.
