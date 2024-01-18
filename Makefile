@@ -5,7 +5,7 @@ MAIN_SRC := ./cmd
 
 all: $(BIN)
 
-$(BIN): $(wildcard ./cmd/*.go) $(wildcard ./models/*.go)
+$(BIN): $(wildcard ./cmd/*.go) $(wildcard ./models/*.go) $(wildcard ./rand/*.go)
 	@mkdir -p ./bin
 	CGO_ENABLED=1 go build -o $(BIN) $(MAIN_SRC)/...
 
