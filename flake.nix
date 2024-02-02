@@ -45,6 +45,7 @@
                 packages = with pkgs; [
                     ## go compiler and gofmt
                     go
+                    gnumake
 
                     ## debugging stuff
                     gdb
