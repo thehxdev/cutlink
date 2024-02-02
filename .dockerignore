@@ -4,3 +4,4 @@ ssl/
 docs/
 *.db
 config.toml
+result

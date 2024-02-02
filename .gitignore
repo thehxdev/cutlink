@@ -2,3 +2,4 @@ bin/
 ssl/
 *.env
 *.db
+result
