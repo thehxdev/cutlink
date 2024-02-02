@@ -33,12 +33,8 @@ func main() {
     configPath := flag.String("cfg", "", "Path to config file")
     flag.Parse()
 
-    if *configPath != "" {
-        viper.SetConfigFile(*configPath)
-    }
-
     cfg := &Config{}
-    setupViper(cfg)
+    setupViper(cfg, *configPath)
 
     var dbIsNew bool = false
     dbPath := viper.GetString("database.mainDB")

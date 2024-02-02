@@ -33,12 +33,16 @@ type Config struct {
 }
 
 
-func setupViper(cfg *Config) {
+func setupViper(cfg *Config, configPath string) {
     viper.SetConfigName("config")
     viper.SetConfigType("toml")
 
     viper.AddConfigPath("/etc/cutlink/")
     viper.AddConfigPath(".")
+
+    if configPath != "" {
+        viper.SetConfigFile(configPath)
+    }
 
     err := viper.ReadInConfig()
     if err != nil {
