@@ -4,6 +4,7 @@ import (
     "os"
     "log"
     "fmt"
+    "flag"
     "time"
     "database/sql"
     "github.com/thehxdev/cutlink/models"
@@ -29,6 +30,13 @@ type cutlink struct {
 
 
 func main() {
+    configPath := flag.String("cfg", "", "Path to config file")
+    flag.Parse()
+
+    if *configPath != "" {
+        viper.SetConfigFile(*configPath)
+    }
+
     cfg := &Config{}
     setupViper(cfg)
 

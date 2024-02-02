@@ -33,7 +33,10 @@
                 vendorHash = "sha256-j5nsgQe2ViwBA757YYjK49txFxFeCh69YJK116EJJtI=";
                 checkPhase = "";
 
-                postInstall = "mv $out/bin/cmd $out/bin/cutlink";
+                postInstall = ''
+                mv $out/bin/cmd $out/bin/cutlink
+                cp config.toml $out
+                '';
             };
         });
 
