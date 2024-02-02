@@ -31,6 +31,7 @@ type cutlink struct {
 
 func main() {
     configPath := flag.String("cfg", "", "Path to config file")
+    uiPath := flag.String("ui", "./ui", "Path to ui directory")
     flag.Parse()
 
     cfg := &Config{}
@@ -50,9 +51,10 @@ func main() {
     }
     defer db.Close()
 
+    htmlFiles := fmt.Sprintf("%s/html", *uiPath)
     cl := &cutlink{
         App: fiber.New(fiber.Config{
-            Views: html.New("./ui/html", ".html"),
+            Views: html.New(htmlFiles, ".html"),
         }),
 
         ErrorLog: log.New(os.Stderr, "[ERROR]\t", log.Ldate|log.Ltime|log.Lshortfile),
@@ -83,7 +85,8 @@ func main() {
     }
 
     // setup static file server first
-    cl.App.Static("/static", "./ui/static", fiber.Static{
+    staticFiles := fmt.Sprintf("%s/static", *uiPath)
+    cl.App.Static("/static", staticFiles, fiber.Static{
         Browse: false,
         CacheDuration: 10 * time.Second,
     })

@@ -36,6 +36,7 @@
                 postInstall = ''
                 mv $out/bin/cmd $out/bin/cutlink
                 cp config.toml $out
+                cp -r ./ui $out
                 '';
             };
         });
