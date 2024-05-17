@@ -1,5 +1,5 @@
 # Using bullseye version because of glibc backward compatibility
-FROM golang:1.21-bullseye
+FROM golang:1.22-bullseye
 
 WORKDIR /app
 COPY . .
