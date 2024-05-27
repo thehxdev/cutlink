@@ -29,4 +29,4 @@ docker: clean ./Dockerfile
 # Build executable file in golang docker container
 # Using bullseye version because of glibc backward compatibility
 docker_exe:
-	docker run --rm -v $(shell pwd):/app -w /app golang:1.21-bullseye make
+	docker run --rm -v $(shell pwd):/app -w /app golang:1.22-bullseye make
