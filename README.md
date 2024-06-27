@@ -47,14 +47,14 @@ docker run -d --name cutlink -v "$PWD"/config.toml:/etc/cutlink/config.toml -p 5
 > Make sure that you already installed `gcc`, `make`, `sqlite3` and `go`.
 
 ```bash
-# This command will build the project and outputs the executable to ./bin directory.
+# This command will build the project and outputs the executable to ./build directory.
 make
 ```
 
 
 ### Build the executable with Golang docker image
 
-This will use Golang docker image to compile the executable and saves the output to `./bin` directory in local environment.
+This will use Golang docker image to compile the executable and saves the output to `./build` directory in local environment.
 Same as running `make` but inside a docker container.
 
 ```bash
