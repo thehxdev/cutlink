@@ -30,7 +30,7 @@
                 # if `nix build` command fails because of wrong vendorHash, it will
                 # report (and print) the correct vendorHash, so you MUST replace it.
                 # Then re-run `nix build` command.
-                vendorHash = "sha256-j5nsgQe2ViwBA757YYjK49txFxFeCh69YJK116EJJtI=";
+                vendorHash = "sha256-YaaSuFpqauCVfpIE6ZEZQzR8scVjikPDBJhOg+8407Q=";
                 checkPhase = "";
 
                 postInstall = ''
