@@ -1,4 +1,5 @@
 bin/
+build/
 ssl/
 *.env
 *.db
