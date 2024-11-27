@@ -1,105 +1,106 @@
 package models
 
 import (
-    "github.com/thehxdev/cutlink/rand"
-    "golang.org/x/crypto/bcrypt"
+	"net/url"
+
+	"github.com/thehxdev/cutlink/rand"
+	"golang.org/x/crypto/bcrypt"
 )
 
+func encodeUrl(target string) string {
+	// return base64.URLEncoding.EncodeToString([]byte(url.QueryEscape(target)))
+	return url.QueryEscape(target)
+}
+
+func decodeUrl(target string) (string, error) {
+	// t, err := base64.URLEncoding.DecodeString(target)
+	// if err != nil {
+	//     // https://stackoverflow.com/a/40673073/19005972
+	// 	return string(t[:]), nil
+	// }
+	// return "", err
+	return url.QueryUnescape(target)
+}
 
 func (c *Conn) GetUrl(hash string) (*Url, error) {
-    stmt := `SELECT id, target, hash, pass_hash, clicked, created FROM urls WHERE hash = ?`
-    url := &Url{}
+	stmt := `SELECT id, target, hash, pass_hash, clicked, created FROM urls WHERE hash = ?`
+	url := &Url{}
 
-    err := c.DB.QueryRow(stmt, hash).Scan(&url.ID, &url.Target, &url.Hash, &url.PassHash, &url.Clicked, &url.Created)
-    if err != nil {
-        return nil, err
-    }
+	err := c.DB.QueryRow(stmt, hash).Scan(&url.ID, &url.Target, &url.Hash, &url.PassHash, &url.Clicked, &url.Created)
+	if err != nil {
+		return nil, err
+	}
 
-    return url, nil
+	url.Target, err = decodeUrl(url.Target)
+	return url, err
 }
-
 
 func (c *Conn) GetAllUrls(id int) ([]*Url, error) {
-    stmt := `SELECT id, target, hash, pass_hash, clicked, created FROM urls WHERE user_id = ? ORDER BY id DESC`
-    urls := []*Url{}
+	stmt := `SELECT id, target, hash, pass_hash, clicked, created FROM urls WHERE user_id = ? ORDER BY id DESC`
+	urls := []*Url{}
 
-    rows, err := c.DB.Query(stmt, id)
-    if err != nil {
-        return nil, err
-    }
-    defer rows.Close()
+	rows, err := c.DB.Query(stmt, id)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
 
-    for rows.Next() {
-        url := &Url{}
-        err := rows.Scan(&url.ID, &url.Target, &url.Hash, &url.PassHash, &url.Clicked, &url.Created)
-        if err != nil {
-            return nil, err
-        }
+	for rows.Next() {
+		url := &Url{}
+		err := rows.Scan(&url.ID, &url.Target, &url.Hash, &url.PassHash, &url.Clicked, &url.Created)
+		if err != nil {
+			return nil, err
+		}
 
-        urls = append(urls, url)
-    }
+		url.Target, err = decodeUrl(url.Target)
+		if err != nil {
+			return nil, err
+		}
+		urls = append(urls, url)
+	}
 
-    return urls, nil
+	return urls, nil
 }
-
 
 func (c *Conn) CreateUrl(uid int, target, password string) (int, string, error) {
-    var passHash []byte = nil
-    var err error
+	var passHash []byte = nil
+	var err error
+	target = encodeUrl(target)
 
-    stmt := `INSERT INTO urls (target, hash, pass_hash, user_id) VALUES (?, ?, ?, ?)`
+	stmt := `INSERT INTO urls (target, hash, pass_hash, user_id) VALUES (?, ?, ?, ?)`
 
-    hashLen := rand.GenRandNum(5, 7)
-    tHash := rand.GenRandString(hashLen)
-    if password != "" {
-        passHash, err = bcrypt.GenerateFromPassword([]byte(password), 12)
-        if err != nil {
-            return 0, "", err
-        }
-    }
+	hashLen := rand.GenRandNum(5, 7)
+	tHash := rand.GenRandString(hashLen)
+	if password != "" {
+		passHash, err = bcrypt.GenerateFromPassword([]byte(password), 12)
+		if err != nil {
+			return 0, "", err
+		}
+	}
 
-    res, err := c.DB.Exec(stmt, target, tHash, string(passHash), uid)
-    if err != nil {
-        return 0, "", err
-    }
+	res, err := c.DB.Exec(stmt, target, tHash, string(passHash), uid)
+	if err != nil {
+		return 0, "", err
+	}
 
-    id, err := res.LastInsertId()
-    if err != nil {
-        return 0, "",err
-    }
+	id, err := res.LastInsertId()
+	if err != nil {
+		return 0, "", err
+	}
 
-    return int(id), tHash, nil
+	return int(id), tHash, nil
 }
-
 
 func (c *Conn) IncrementClicked(hash string) error {
-    stmt := `UPDATE urls SET clicked = clicked + 1 WHERE hash = ?`
+	stmt := `UPDATE urls SET clicked = clicked + 1 WHERE hash = ?`
 
-    _, err := c.DB.Exec(stmt, hash)
-    return err
+	_, err := c.DB.Exec(stmt, hash)
+	return err
 }
-
 
 func (c *Conn) DeleteUrl(id int, hash string) error {
-    stmt := `DELETE FROM urls WHERE hash = ? AND user_id = ?`
+	stmt := `DELETE FROM urls WHERE hash = ? AND user_id = ?`
 
-    _, err := c.DB.Exec(stmt, hash, id)
-    return err
+	_, err := c.DB.Exec(stmt, hash, id)
+	return err
 }
-
-
-/*
-func (c *Conn) TableIsEmpty(table string) (int, error) {
-    var isEmpty int
-
-    stmt := `SELECT CASE WHEN EXISTS(SELECT 1 FROM ?) THEN 0 ELSE 1 END AS IsEmpty`
-    res := c.DB.QueryRowx(stmt, table)
-
-    err := res.Scan(&isEmpty)
-    if err != nil {
-        return -1, err
-    }
-
-    return isEmpty, nil
-}
-*/
